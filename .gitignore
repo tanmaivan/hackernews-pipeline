@@ -1,0 +1,30 @@
+# Byte-compiled / caches
+__pycache__/
+*.py[cod]
+*.so
+
+# Virtualenv
+.env
+venv/
+.envrc
+
+# Editor
+.vscode/
+.idea/
+*.swp
+
+# Docker
+docker-compose.override.yml
+.env.docker
+
+# OS
+.DS_Store
+
+# Python packaging
+dist/
+build/
+*.egg-info/
+
+# Secrets
+*.pem
+*.key
