@@ -1,0 +1,109 @@
+# --- Provider configuration ---
+resource "google_project_service" "required_apis" {
+  for_each = toset([
+    "storage.googleapis.com",
+    "bigquery.googleapis.com",
+    "iam.googleapis.com",
+    "cloudresourcemanager.googleapis.com",
+  ])
+  project = var.project_id
+  service = each.key
+
+  disable_on_destroy = false
+
+}
+
+# --- Naming conventions ---
+locals {
+  resource_prefix = "hn-${var.env}"
+}
+
+# --- Buckets ---
+resource "google_storage_bucket" "bronze_bucket" {
+  name          = "${local.resource_prefix}-bronze-bucket"
+  location      = var.region
+  force_destroy = true
+  uniform_bucket_level_access = true
+  lifecycle_rule {
+    action {
+      type = "Delete"
+    }
+    condition {
+      age = 30
+    }
+  }
+
+}
+
+resource "google_storage_bucket" "silver_bucket" {
+  name = "${local.resource_prefix}-silver-bucket"
+  location = var.region
+  uniform_bucket_level_access = true
+}
+
+resource "google_storage_bucket" "gold_bucket" {
+  name = "${local.resource_prefix}-gold-bucket"
+  location = var.region
+  uniform_bucket_level_access = true
+}
+
+# --- BigQuery Datasets ---
+resource "google_bigquery_dataset" "bronze_dataset" {
+  dataset_id = "${replace(local.resource_prefix, "-", "_")}_bronze"
+  location   = var.region
+  friendly_name = "Bronze Dataset"
+  description = "Raw data from Hacker News API"
+  default_partition_expiration_ms = 30 * 24 * 3600 * 1000 # 30 days
+}
+
+resource "google_bigquery_dataset" "silver_dataset" {
+  dataset_id = "${replace(local.resource_prefix, "-", "_")}_silver"
+  location   = var.region
+  friendly_name = "Silver Dataset"
+  description = "Cleansed and standardized data from Bronze Dataset"
+}
+
+resource "google_bigquery_dataset" "gold_dataset" {
+  dataset_id = "${replace(local.resource_prefix, "-", "_")}_gold"
+  location   = var.region
+  friendly_name = "Gold Dataset"
+  description = "Aggregated and business-ready data from Silver Dataset"
+}
+
+# --- IAM Roles and Permissions ---
+# --- Service Account ---
+resource "google_service_account" "service_account" {
+  account_id   = "${local.resource_prefix}-sa"
+  display_name = "Service Account for Data Pipeline"
+}
+
+# --- IAM Bindings for Service Account ---
+resource "google_storage_bucket_iam_member" "bronzer_writer" {
+  bucket = google_storage_bucket.bronze_bucket.name
+  role   = "roles/storage.objectAdmin"
+  member = google_service_account.service_account.member
+}
+
+resource "google_storage_bucket_iam_member" "silver_writer" {
+  bucket = google_storage_bucket.silver_bucket.name
+  role   = "roles/storage.objectAdmin"
+  member = google_service_account.service_account.member
+}
+
+resource "google_storage_bucket_iam_member" "gold_writer" {
+  bucket = google_storage_bucket.gold_bucket.name
+  role   = "roles/storage.objectAdmin"
+  member = google_service_account.service_account.member
+}
+
+resource "google_project_iam_member" "bigquery_user" {
+  project = var.project_id
+  role = "roles/bigquery.user"
+  member = google_service_account.service_account.member
+}
+
+resource "google_project_iam_member" "bigquery_data_editor" {
+  project = var.project_id
+  role = "roles/bigquery.dataEditor"
+  member = google_service_account.service_account.member
+}
