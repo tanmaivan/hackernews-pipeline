@@ -1,0 +1,8 @@
+pre-commit
+requests
+google-cloud-storage
+tenacity
+python-dotenv
+pytest
+pytest-mock
+tqdm

@@ -28,3 +28,14 @@ build/
 # Secrets
 *.pem
 *.key
+
+# Terraform
+*.tfstate
+*.tfstate.backup
+*.tfplan
+.terraform/
+crash.log
+crash.log.*
+*.tfvars
+*.tfvars.json
+*.plan
