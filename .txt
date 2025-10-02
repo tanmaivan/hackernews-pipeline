@@ -1,0 +1,24 @@
+docker run --rm -v /home/tan/.config/gcloud/application_default_credentials.json:/gcloud-credentials.json -e GOOGLE_APPLICATION_CREDENTIALS=/gcloud-credentials.json -e GOOGLE_CLOUD_PROJECT=hackernews-473403 hn-extractor:latest
+
+gcloud artifacts repositories create hackernews-repo \
+  --repository-format=docker \
+  --location=asia-southeast1 \
+  --description="Docker repository for HackerNews pipeline"
+
+gcloud auth configure-docker asia-southeast1-docker.pkg.dev
+
+docker build -t asia-southeast1-docker.pkg.dev/hackernews-473403/hackernews-docker-repo/prefect-hn-extractor:latest \
+  -f extractor/Dockerfile .
+
+docker push asia-southeast1-docker.pkg.dev/hackernews-473403/hackernews-docker-repo/prefect-hn-extractor:latest
+
+gcloud artifacts docker images list \
+  asia-southeast1-docker.pkg.dev/hackernews-473403/hackernews-docker-repo
+
+
+gcloud iam service-accounts keys create prefect-agent-sa-key.json \
+  --iam-account=$(gcloud iam service-accounts list \
+    --filter="displayName:Service Account for orchestration" \
+    --format="value(email)")
+
+gcloud iam service-accounts keys create gcp-credentials.json --iam-account="hn-dev-pipeline-worker-sa@hackernews-473403.iam.gserviceaccount.com"

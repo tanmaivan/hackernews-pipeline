@@ -1,0 +1,6 @@
+requests
+tenacity
+tqdm
+google-cloud-storage
+prefect
+prefect-gcp

@@ -1,4 +1,15 @@
-# --- Outputs cho GCS Buckets ---
+# --- Outputs for Project and Region ---
+output "project_id" {
+  description = "The ID of the GCP project."
+  value       = var.project_id
+}
+
+output "region" {
+  description = "The GCP region where resources are deployed."
+  value       = var.region
+}
+
+# --- Outputs for GCS Buckets ---
 
 output "bronze_bucket_name" {
   description = "The name of the GCS bucket for raw data (Bronze layer)."
@@ -15,7 +26,7 @@ output "gold_bucket_name" {
   value       = google_storage_bucket.gold_bucket.name
 }
 
-# --- Outputs cho BigQuery Datasets ---
+# --- Outputs for BigQuery Datasets ---
 
 output "bronze_dataset_id" {
   description = "The ID of the BigQuery dataset for the Bronze layer."
@@ -32,9 +43,13 @@ output "gold_dataset_id" {
   value       = google_bigquery_dataset.gold_dataset.dataset_id
 }
 
-# --- Outputs cho Service Account (Rất quan trọng!) ---
+# --- Outputs for Service Account ---
 
-output "pipeline_service_account_email" {
-  description = "The email address of the service account used by the ETL pipeline."
-  value       = google_service_account.service_account.email
+output "pipeline_worker_service_account_email" {
+  description = "The email address of the service account used by the Pipeline Worker."
+  value       = google_service_account.pipeline_worker_sa.email
+}
+output "artifact_registry_repo_url" {
+  description = "The URL of the Artifact Registry repository for Docker images."
+  value       = "${google_artifact_registry_repository.hackernews_docker_repo.location}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.hackernews_docker_repo.repository_id}"
 }

@@ -1,9 +1,9 @@
 # extractor/src/main.py
 from datetime import datetime
-from extractor.src.hn_client import get_max_item_id, fetch_items_concurrently
-from extractor.src.processing import process_items_to_gzipped_ndjson
-from extractor.src.gcs_utils import upload_to_gcs, read_checkpoint, write_checkpoint
-from extractor.src.config import BUCKET_NAME
+from .hn_client import get_max_item_id, fetch_items_concurrently
+from .processing import process_items_to_gzipped_ndjson
+from .gcs_utils import upload_to_gcs, read_checkpoint, write_checkpoint
+from .config import BUCKET_NAME
 import sys
 import time
 

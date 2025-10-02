@@ -39,3 +39,6 @@ crash.log.*
 *.tfvars
 *.tfvars.json
 *.plan
+
+gcp-credentials.json
+gcp-credentials.json
