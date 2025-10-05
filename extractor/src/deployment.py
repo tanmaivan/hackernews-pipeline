@@ -5,7 +5,7 @@ from datetime import timedelta, datetime
 hn_extractor_flow.serve(
     name="hn-extractor-deploy",
     schedule=Interval(
-        timedelta(days=1),
+        timedelta(minutes=30),
         anchor_date=datetime(2025, 1, 1, 0, 0, 0),
         timezone="UTC",
     ),

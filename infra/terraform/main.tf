@@ -11,6 +11,7 @@ resource "google_project_service" "required_apis" {
     "logging.googleapis.com",
     "monitoring.googleapis.com",
     "secretmanager.googleapis.com",
+    "dataproc.googleapis.com"
   ])
   project = var.project_id
   service = each.key
@@ -51,6 +52,17 @@ resource "google_storage_bucket" "gold_bucket" {
   name = "${local.resource_prefix}-gold-bucket"
   location = var.region
   uniform_bucket_level_access = true
+}
+
+resource "google_storage_bucket" "code_bucket" {
+  name = "${local.resource_prefix}-code-bucket"
+  location = var.region
+  uniform_bucket_level_access = true
+  force_destroy = true
+  versioning {
+    enabled = true
+  }
+
 }
 
 # --- BigQuery Datasets ---
@@ -105,6 +117,12 @@ resource "google_storage_bucket_iam_member" "silver_writer" {
 
 resource "google_storage_bucket_iam_member" "gold_writer" {
   bucket = google_storage_bucket.gold_bucket.name
+  role   = "roles/storage.objectAdmin"
+  member = google_service_account.pipeline_worker_sa.member
+}
+
+resource "google_storage_bucket_iam_member" "code_writer" {
+  bucket = google_storage_bucket.code_bucket.name
   role   = "roles/storage.objectAdmin"
   member = google_service_account.pipeline_worker_sa.member
 }

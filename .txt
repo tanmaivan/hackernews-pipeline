@@ -22,3 +22,9 @@ gcloud iam service-accounts keys create prefect-agent-sa-key.json \
     --format="value(email)")
 
 gcloud iam service-accounts keys create gcp-credentials.json --iam-account="hn-dev-pipeline-worker-sa@hackernews-473403.iam.gserviceaccount.com"
+
+prefect deployment build extractor/src/hn_extractor_flow.py:hn_extractor_flow \
+    -n hn-extractor-deploy \
+    --pool gcp-process-pool \
+    --queue default \
+    -o hn_extractor_deploy.yaml

@@ -43,6 +43,10 @@ output "gold_dataset_id" {
   value       = google_bigquery_dataset.gold_dataset.dataset_id
 }
 
+output "code_bucket_name" {
+  description = "The name of the GCS bucket for storing code and scripts."
+  value       = google_storage_bucket.code_bucket.name
+}
 # --- Outputs for Service Account ---
 
 output "pipeline_worker_service_account_email" {
