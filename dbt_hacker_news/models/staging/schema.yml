@@ -1,0 +1,51 @@
+version: 2
+
+models:
+  - name: stg_hn_items
+    description: "Staged Hacker News items, cleaned and transformed."
+    columns:
+      - name: item_id
+        description: "Unique identifier for each item."
+        data_tests:
+          - not_null:
+              arguments:
+                where: "ingest_date = '2025-10-05'"
+          - unique:
+              arguments:
+                where: "ingest_date = '2025-10-05'"
+
+      - name: created_at
+        description: "Timestamp when the item was created."
+        data_tests:
+          - not_null:
+              arguments:
+                where: "ingest_date = '2025-10-05'"
+
+      - name: item_type
+        description: "Type of the item (story, comment, job, poll, pollopt)."
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["story", "comment", "job", "poll", "pollopt"]
+                where: "ingest_date = '2025-10-05'"
+
+      - name: author
+        description: "Username of the item's author."
+      - name: title
+        description: "Title of the item, if applicable."
+      - name: text_content
+        description: "Text content of the item, if applicable."
+      - name: url
+        description: "Associated URL, if any."
+      - name: score
+        description: "Score (points) of the item."
+      - name: parent_id
+        description: "Parent item ID, if applicable."
+      - name: descendants
+        description: "Number of comments under the item."
+      - name: ingest_date
+        description: "Partition date of the item (DATE)."
+      - name: ingest_date_str
+        description: "Ingestion date as string."
+      - name: source_file
+        description: "Origin source file."

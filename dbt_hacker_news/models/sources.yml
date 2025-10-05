@@ -1,0 +1,8 @@
+# dbt_hacker_news/models/sources.yml
+version: 2
+
+sources:
+  - name: hackernews_silver_external
+    schema: "{{ var('silver_dataset_name') }}"
+    tables:
+      - name: stg_hackernews_items
