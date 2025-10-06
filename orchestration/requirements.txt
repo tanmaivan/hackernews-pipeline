@@ -1,0 +1,7 @@
+extractor==0.5
+google-cloud-storage==2.19.0
+prefect==3.4.22
+prefect_shell==0.3.1
+requests==2.32.5
+tenacity==9.1.2
+tqdm==4.67.1
