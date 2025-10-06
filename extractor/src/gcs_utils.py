@@ -2,9 +2,26 @@
 import json
 from google.cloud import storage
 from google.api_core import exceptions as gcs_exceptions
+from google.oauth2.service_account import Credentials
 
 
-def upload_to_gcs(bucket_name: str, blob_name: str, data_stream, manifest: dict):
+def get_gcs_client(gcp_credentials_block):
+    """
+    Tao Google Cloud Storage (GCS) client tu Prefect GCP Credentials block.
+    Args:
+        gcp_credentials_block: Prefect GCP Credentials block chua thong tin xac thuc.
+    Returns:
+        storage.Client: GCS client.
+    """
+    creds_dict = gcp_credentials_block.service_account_info.get_secret_value()
+    credentials = Credentials.from_service_account_info(creds_dict)
+
+    return storage.Client(credentials=credentials)
+
+
+def upload_to_gcs(
+    bucket_name: str, blob_name: str, data_stream, manifest: dict, gcp_credentials_block
+):
     """
     Upload du lieu tu stream len Google Cloud Storage (GCS) va luu manifest.
     Args:
@@ -12,11 +29,12 @@ def upload_to_gcs(bucket_name: str, blob_name: str, data_stream, manifest: dict)
         blob_name (str): Ten cua dich cuoi cung cua file trong bucket.
         data_stream: Stream chua du lieu can upload.
         manifest (dict): Metadata cua file de luu o manifest.
+        gcp_credentials_block: Prefect GCP Credentials block chua thong tin xac thuc.
     Raises:
         gcs_exceptions.GoogleAPIError: Neu co loi khi upload len GCS.
     """
     try:
-        storage_client = storage.Client()
+        storage_client = get_gcs_client(gcp_credentials_block)
         bucket = storage_client.bucket(bucket_name)
 
         final_blob_name = blob_name
@@ -62,19 +80,22 @@ def upload_to_gcs(bucket_name: str, blob_name: str, data_stream, manifest: dict)
             print(f"Error cleaning up temporary blob: {cleanup_err}")
 
 
-def read_checkpoint(bucket_name: str, checkpoint_path: str) -> int:
+def read_checkpoint(
+    bucket_name: str, checkpoint_path: str, gcp_credentials_block
+) -> int:
     """
     Doc checkpoint tu GCS de biet duoc item_id bat dau.
     Args:
         bucket_name (str): Ten cua GCS bucket.
         checkpoint_path (str): Duong dan den file checkpoint trong bucket.
+        gcp_credentials_block: Prefect GCP Credentials block chua thong tin xac thuc.
     Returns:
         int: item_id bat dau. Neu khong co checkpoint, tra ve 0.
     Raises:
         gcs_exceptions.GoogleAPIError: Neu co loi khi doc tu GCS.
     """
     try:
-        storage_client = storage.Client()
+        storage_client = get_gcs_client(gcp_credentials_block)
         bucket = storage_client.bucket(bucket_name)
         blob = bucket.blob(checkpoint_path)
         if not blob.exists():
@@ -92,18 +113,21 @@ def read_checkpoint(bucket_name: str, checkpoint_path: str) -> int:
         return 0
 
 
-def write_checkpoint(bucket_name: str, checkpoint_path: str, last_id: int):
+def write_checkpoint(
+    bucket_name: str, checkpoint_path: str, last_id: int, gcp_credentials_block
+):
     """
     Ghi checkpoint len GCS de luu item_id da xu ly cuoi cung.
     Args:
         bucket_name (str): Ten cua GCS bucket.
         checkpoint_path (str): Duong dan den file checkpoint trong bucket.
         last_id (int): item_id da xu ly cuoi cung.
+        gcp_credentials_block: Prefect GCP Credentials block chua thong tin xac thuc.
     Raises:
         gcs_exceptions.GoogleAPIError: Neu co loi khi ghi len GCS.
     """
     try:
-        storage_client = storage.Client()
+        storage_client = get_gcs_client(gcp_credentials_block)
         bucket = storage_client.bucket(bucket_name)
         blob = bucket.blob(checkpoint_path)
         blob.upload_from_string(str(last_id), content_type="text/plain")

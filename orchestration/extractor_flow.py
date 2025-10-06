@@ -6,6 +6,8 @@ from extractor.src.gcs_utils import upload_to_gcs, read_checkpoint, write_checkp
 from extractor.src.config import BUCKET_NAME
 import time
 from prefect import flow, task
+from prefect_gcp import GcpCredentials
+
 
 CHUNK_SIZE = 10000  # So luong item lay moi lan
 TOTAL_ITEMS = 100000  # Tong so item can lay
@@ -24,13 +26,14 @@ def process_data_task(raw_items):
 
 
 @task(log_prints=True)
-def upload_data_task(gcs_info, compressed_stream, item_count):
+def upload_data_task(gcs_info, compressed_stream, item_count, gcp_credentials_block):
     print(f"Uploading {item_count} items to GCS...")
     upload_to_gcs(
         gcs_info["bucket_name"],
         gcs_info["blob_name"],
         compressed_stream,
         gcs_info["manifest"],
+        gcp_credentials_block,
     )
 
 
@@ -51,8 +54,12 @@ def extractor_flow(chunk_size: int = 10000, total_items: int = 100000):
     Returns:
         None
     """
+    gcp_credentials_block = GcpCredentials.load("gcp-creds")
+
     checkpoint_path = "checkpoints/last_item_id.txt"
-    last_processed_id = read_checkpoint(BUCKET_NAME, checkpoint_path)
+    last_processed_id = read_checkpoint(
+        BUCKET_NAME, checkpoint_path, gcp_credentials_block
+    )
     end_id = get_max_item_id()
     start_id = max(last_processed_id + 1, end_id - total_items + 1)
 
@@ -76,7 +83,9 @@ def extractor_flow(chunk_size: int = 10000, total_items: int = 100000):
 
         if not raw_items_chunk:
             print("Fetched 0 items in this chunk. Skipping to next chunk.")
-            write_checkpoint(BUCKET_NAME, checkpoint_path, chunk_end_id)
+            write_checkpoint(
+                BUCKET_NAME, checkpoint_path, chunk_end_id, gcp_credentials_block
+            )
             continue
 
         # Step 2: Process items into gzipped NDJSON
@@ -102,11 +111,15 @@ def extractor_flow(chunk_size: int = 10000, total_items: int = 100000):
             "manifest": manifest,
         }
 
-        upload_data_task(gcs_info, compressed_data_stream, item_count)
+        upload_data_task(
+            gcs_info, compressed_data_stream, item_count, gcp_credentials_block
+        )
 
         # Step 4: Update checkpoint
         print("\nStep 4: Updating checkpoint...")
-        write_checkpoint(BUCKET_NAME, checkpoint_path, chunk_end_id)
+        write_checkpoint(
+            BUCKET_NAME, checkpoint_path, chunk_end_id, gcp_credentials_block
+        )
 
         chunk_duration = time.time() - chunk_start_time
 
