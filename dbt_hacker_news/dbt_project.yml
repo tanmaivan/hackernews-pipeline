@@ -22,10 +22,11 @@ clean-targets: # directories to be removed by `dbt clean`
 # Full documentation: https://docs.getdbt.com/docs/configuring-models
 models:
   dbt_hacker_news:
-    # Config indicated by + and applies to all files under models/example/
-    +materialized: view
+    staging:
+      +materialized: view
+    marts:
+      +materialized: table
 
-# Configuring variables
 vars:
   silver_dataset_name: "hn_dev_silver"
   gold_dataset_name: "hn_dev_gold"

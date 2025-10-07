@@ -1,0 +1,4 @@
+# dbt_hacker_news/packages.yml
+packages:
+  - package: dbt-labs/dbt_utils
+    version: 1.3.1

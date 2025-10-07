@@ -1,0 +1,52 @@
+version: 2
+
+models:
+  - name: dim_users
+    description: "Dimension table for Hacker News users."
+    columns:
+      - name: user_key
+        description: "Surrogate key for each user."
+        tests:
+          - not_null
+          - unique
+      - name: user_name
+        description: "The username of the Hacker News user."
+        tests:
+          - not_null
+          - unique
+      - name: first_post_at_ts
+        description: "Timestamp of the user's first post."
+      - name: last_post_at_ts
+        description: "Timestamp of the user's most recent post."
+      - name: total_posts_count
+        description: "Total number of posts made by the user."
+      - name: author_lifetime_days
+        description: "The number of days between the user's first and last post."
+
+  - name: dim_items
+    description: "Dimension table for Hacker News items."
+    columns:
+      - name: item_key
+        description: "Surrogate key for each item."
+        tests:
+          - not_null
+          - unique
+      - name: item_id
+        description: "The unique identifier for the item."
+        tests:
+          - not_null
+          - unique
+      - name: item_type
+        description: "The type of the item (e.g., story, comment)."
+      - name: title
+        description: "The title of the item (if applicable)."
+      - name: text_content
+        description: "The text content of the item (if applicable)."
+      - name: url
+        description: "The URL associated with the item (if applicable)."
+      - name: domain
+        description: "The domain extracted from the URL."
+      - name: has_url
+        description: "Boolean indicating if the item has a URL."
+      - name: text_length
+        description: "Length of the text content."

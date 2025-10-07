@@ -1,0 +1,36 @@
+# dbt_hacker_news/models/marts/facts/schema.yml
+version: 2
+
+models:
+  - name: fct_stories
+    description: "Fact table for Hacker News stories."
+    columns:
+      - name: item_key
+        description: "Foreign key to the dim_items table."
+        tests:
+          - not_null
+          - unique
+          - relationships:
+              field: item_key
+              to: ref('dim_items')
+      - name: user_key
+        description: "Foreign key to the dim_users table."
+        tests:
+          - not_null
+          - relationships:
+              field: user_key
+              to: ref('dim_users')
+      - name: created_date_key
+        description: "Foreign key to the dim_dates table representing the creation date."
+        tests:
+          - not_null
+      - name: created_at
+        description: "Timestamp when the story was created."
+        tests:
+          - not_null
+      - name: score
+        description: "The score of the story."
+      - name: total_comments
+        description: "Total number of comments on the story."
+      - name: time_to_first_comment_seconds
+        description: "Time in seconds from story creation to the first comment."
