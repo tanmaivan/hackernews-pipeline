@@ -3,7 +3,6 @@
 WITH source AS (
     SELECT *
     FROM {{ source('hackernews_silver_external', 'stg_hackernews_items') }}
-    WHERE ingest_date = '2025-10-05'
 )
 
 SELECT
