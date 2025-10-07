@@ -1,6 +1,6 @@
 # orchestration/extractor_flow.py
 from datetime import datetime
-from extractor.src.hn_client import get_max_item_id, fetch_items_concurrently
+from extractor.src.hn_client import get_max_item_id
 from extractor.src.processing import process_items_to_gzipped_ndjson
 from extractor.src.gcs_utils import upload_to_gcs, read_checkpoint, write_checkpoint
 from extractor.src.config import BUCKET_NAME
@@ -16,7 +16,6 @@ TOTAL_ITEMS = 100000  # Tong so item can lay
 @task(log_prints=True, retries=3, retry_delay_seconds=10)
 def fetch_data_task(start_id, end_id):
     print(f"Fetching items from ID {start_id} to {end_id}...")
-    return fetch_items_concurrently(start_id, end_id)
 
 
 @task(log_prints=True)

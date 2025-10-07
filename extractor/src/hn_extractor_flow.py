@@ -1,4 +1,4 @@
-# extractor/src/hn_extractor_flow.py
+# extractor/src/main.py
 from datetime import datetime
 from .hn_client import get_max_item_id, fetch_items_concurrently
 from .processing import process_items_to_gzipped_ndjson
