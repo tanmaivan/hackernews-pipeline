@@ -11,7 +11,8 @@ resource "google_project_service" "required_apis" {
     "logging.googleapis.com",
     "monitoring.googleapis.com",
     "secretmanager.googleapis.com",
-    "dataproc.googleapis.com"
+    # "dataproc.googleapis.com",
+    "datacatalog.googleapis.com"
   ])
   project = var.project_id
   service = each.key
@@ -140,15 +141,21 @@ resource "google_project_iam_member" "bigquery_data_editor" {
 }
 
 resource "google_artifact_registry_repository_iam_member" "pipeline_runner_repo_reader" {
-    location = var.region
-    repository = google_artifact_registry_repository.hackernews_docker_repo.name
-    role = "roles/artifactregistry.reader"
-    member = google_service_account.pipeline_worker_sa.member
+  location = var.region
+  repository = google_artifact_registry_repository.hackernews_docker_repo.name
+  role = "roles/artifactregistry.reader"
+  member = google_service_account.pipeline_worker_sa.member
 }
 
-resource "google_project_iam_member" "vm_instance_user" {
-    project = var.project_id
-    role = "roles/compute.instanceUser"
-    member = google_service_account.pipeline_worker_sa.member
-
+resource "google_project_iam_member" "data_catalog_admin" {
+  project = var.project_id
+  role = "roles/datacatalog.admin"
+  member = google_service_account.pipeline_worker_sa.member
 }
+
+# resource "google_project_iam_member" "vm_instance_user" {
+#     project = var.project_id
+#     role = "roles/compute.instanceUser"
+#     member = google_service_account.pipeline_worker_sa.member
+
+# }
