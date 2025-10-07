@@ -49,7 +49,7 @@ OPTIONS (
     format = 'PARQUET',
     uris = ['gs://${SILVER_BUCKET}/silver/items/*'],
     hive_partition_uri_prefix = 'gs://${SILVER_BUCKET}/silver/items/',
-    require_hive_partition_filter = true
+    require_hive_partition_filter = false
 );
 "
 
