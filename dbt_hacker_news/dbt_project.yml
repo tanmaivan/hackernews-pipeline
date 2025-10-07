@@ -24,8 +24,10 @@ models:
   dbt_hacker_news:
     staging:
       +materialized: view
+      +schema: "hn_dev_silver"
     marts:
       +materialized: table
+      +schema: "hn_dev_gold"
 
 vars:
   silver_dataset_name: "hn_dev_silver"

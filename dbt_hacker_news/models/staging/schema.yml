@@ -1,3 +1,4 @@
+# dbt_hacker_news/models/staging/schema.yml
 version: 2
 
 models:
