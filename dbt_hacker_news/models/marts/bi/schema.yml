@@ -1,0 +1,41 @@
+# dbt_hacker_news/models/marts/bi/schema.yml
+version: 2
+
+models:
+  - name: mart_story_analytics
+    description: "Business intelligence mart for analyzing Hacker News stories."
+    columns:
+      - name: item_key
+        description: "Surrogate key for each item."
+        tests:
+          - not_null
+          - unique
+      - name: item_id
+        description: "The unique identifier for the item."
+        tests:
+          - not_null
+          - unique
+      - name: title
+        description: "The title of the story."
+      - name: url
+        description: "The URL associated with the story."
+      - name: story_domain
+        description: "The domain extracted from the URL."
+      - name: user_key
+        description: "Surrogate key for the user who posted the story."
+      - name: user_name
+        description: "The username of the user who posted the story."
+      - name: author_lifetime_days
+        description: "The number of days between the user's first and last post."
+      - name: total_posts_count
+        description: "Total number of posts made by the user."
+      - name: created_at
+        description: "The timestamp when the story was created."
+      - name: created_at_date
+        description: "The date when the story was created."
+      - name: score
+        description: "The score (points) of the story."
+      - name: total_comments
+        description: "Total number of comments on the story."
+      - name: time_to_first_comment_seconds
+        description: "Time in seconds from story creation to the first comment."
