@@ -28,7 +28,7 @@ UNION ALL
 SELECT
     'unknown_user_key' AS user_key,
     'unknown_user_name' AS user_name,
-    NULL AS first_post_at_ts,
-    NULL AS last_post_at_ts,
+    CAST(NULL AS TIMESTAMP) AS first_post_at_ts,
+    CAST(NULL AS TIMESTAMP) AS last_post_at_ts,
     0 AS total_posts_count,
     NULL AS author_lifetime_days
