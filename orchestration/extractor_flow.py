@@ -131,4 +131,4 @@ def extractor_flow(chunk_size: int = 10000, total_items: int = 100000):
 
 
 if __name__ == "__main__":
-    extractor_flow(chunk_size=CHUNK_SIZE, total_items=100000)
+    extractor_flow(chunk_size=CHUNK_SIZE, total_items=150000)
