@@ -26,7 +26,7 @@ SELECT
     -- Time details
     fs.created_at, CAST(fs.created_at AS DATE) AS created_at_date,
     -- Story metrics
-    fs.score, fs.total_comments, fs.time_to_first_comment_seconds
+    fs.score, fs.total_comments, fs.time_to_first_comment_minutes
 FROM fct_stories fs
 LEFT JOIN dim_items di ON fs.item_key = di.item_key
 LEFT JOIN dim_users du ON fs.user_key = du.user_key

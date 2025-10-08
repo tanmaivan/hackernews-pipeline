@@ -49,7 +49,7 @@ SELECT
     si.created_at,
     si.score,
     cps.total_comments,
-    TIMESTAMP_DIFF(fct.first_comment_at, si.created_at, SECOND) AS time_to_first_comment_seconds
+    TIMESTAMP_DIFF(fct.first_comment_at, si.created_at, MINUTE) AS time_to_first_comment_minutes
 FROM stg_items si
 LEFT JOIN dim_items di ON si.item_id = di.item_id
 LEFT JOIN dim_users du ON COALESCE(si.author, 'unknown_user_name') = du.user_name
