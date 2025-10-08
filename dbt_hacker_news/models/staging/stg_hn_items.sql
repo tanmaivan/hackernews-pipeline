@@ -1,9 +1,16 @@
 --- dbt_hackernews/models/staging/stg_hn_items.sql
 
-WITH source AS (
-    SELECT *
-    FROM {{ source('hackernews_silver_external', 'stg_hackernews_items') }}
-)
+WITH
+    source AS (
+        SELECT *
+        FROM {{ source('hackernews_silver_external', 'stg_hackernews_items') }}
+    ),
+    deduped AS (
+        SELECT
+            *,
+            ROW_NUMBER() OVER (PARTITION BY item_id ORDER BY ingest_date DESC) AS row_num
+        FROM source
+    )
 
 SELECT
     item_id, parent_id,
@@ -13,4 +20,5 @@ SELECT
     score, descendants,
     source_file,
     ingest_date
-FROM source
+FROM deduped
+WHERE row_num = 1
