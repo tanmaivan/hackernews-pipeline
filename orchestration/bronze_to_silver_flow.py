@@ -35,7 +35,7 @@ def refresh_silver_external_tables() -> None:
     print("Script executed successfully.")
 
 
-@flow(log_prints=True, name="Bronze to Silver ETL Flow")
+@flow(log_prints=True, name="Bronze to Silver ELT Flow")
 def bronze_to_silver_flow() -> None:
     print("Starting Bronze to Silver ETL Flow...")
 

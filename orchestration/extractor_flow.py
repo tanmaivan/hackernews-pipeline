@@ -1,6 +1,6 @@
 # orchestration/extractor_flow.py
 from datetime import datetime
-from extractor.src.hn_client import fetch_items_concurrently
+from extractor.src.hn_client import get_max_item_id, fetch_items_concurrently
 from extractor.src.processing import process_items_to_gzipped_ndjson
 from extractor.src.gcs_utils import upload_to_gcs, read_checkpoint, write_checkpoint
 from extractor.src.config import BUCKET_NAME
@@ -9,8 +9,8 @@ from prefect import flow, task
 from prefect_gcp import GcpCredentials
 
 
-CHUNK_SIZE = 10000  # So luong item lay moi lan
-TOTAL_ITEMS = 100000  # Tong so item can lay
+CHUNK_SIZE = 10000  # number of items to process in each chunk
+TOTAL_ITEMS = 100000  # total number of items to backfill
 
 
 @task(log_prints=True, retries=3, retry_delay_seconds=10)
@@ -57,12 +57,12 @@ def extractor_flow(chunk_size: int = 10000, total_items: int = 100000):
     gcp_credentials_block = GcpCredentials.load("gcp-creds")
 
     # checkpoint_path = "checkpoints/last_item_id.txt"
-    checkpoint_path = "checkpoints/last_item_id_for_the_old_items.txt"
+    checkpoint_path = "checkpoints/last_item_id.txt"
     last_processed_id = read_checkpoint(
         BUCKET_NAME, checkpoint_path, gcp_credentials_block
     )
-    # end_id = get_max_item_id()
-    end_id = 45298481
+
+    end_id = get_max_item_id()
     start_id = max(last_processed_id + 1, end_id - total_items + 1)
 
     if start_id > end_id:
@@ -131,4 +131,4 @@ def extractor_flow(chunk_size: int = 10000, total_items: int = 100000):
 
 
 if __name__ == "__main__":
-    extractor_flow(chunk_size=CHUNK_SIZE, total_items=150000)
+    extractor_flow(chunk_size=CHUNK_SIZE, total_items=TOTAL_ITEMS)

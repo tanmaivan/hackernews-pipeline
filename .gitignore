@@ -41,4 +41,4 @@ crash.log.*
 *.plan
 
 gcp-credentials.json
-gcp-credentials.json
+logs/
