@@ -56,25 +56,24 @@ def create_silver_external_table(
     print(f"External table {table_ref} created or replaced successfully.")
 
 
-def run_create_external_table() -> None:
-    tf_dir = Path(__file__).parent.parent / "infra" / "terraform"
-    outputs = get_terraform_outputs(tf_dir)
+def run_create_external_table(
+    GCP_PROJECT_ID: str, SILVER_DATASET_ID: str, SILVER_BUCKET: str
+) -> None:
+    """
+    This function orchestrates the creation of an external table in BigQuery.
+    """
 
-    project_id = outputs["project_id"]
-    silver_bucket_name = outputs["silver_bucket_name"]
-    silver_dataset_id = outputs["silver_dataset_id"]
-
-    print(f"GCP Project ID: {project_id}")
-    print(f"Silver Bucket: {silver_bucket_name}")
-    print(f"Silver Dataset ID: {silver_dataset_id}")
+    print(f"GCP Project ID: {GCP_PROJECT_ID}")
+    print(f"Silver Bucket: {SILVER_BUCKET}")
+    print(f"Silver Dataset ID: {SILVER_DATASET_ID}")
     print("--------------------------")
 
     print("Starting to create external table in BigQuery...")
 
     create_silver_external_table(
-        project_id=project_id,
-        dataset_id=silver_dataset_id,
-        bucket_name=silver_bucket_name,
+        project_id=GCP_PROJECT_ID,
+        dataset_id=SILVER_DATASET_ID,
+        bucket_name=SILVER_BUCKET,
     )
 
     print("Finished creating external table.")
@@ -82,4 +81,15 @@ def run_create_external_table() -> None:
 
 
 if __name__ == "__main__":
-    run_create_external_table()
+    tf_dir = Path(__file__).parent.parent / "infra" / "terraform"
+    outputs = get_terraform_outputs(tf_dir)
+
+    GCP_PROJECT_ID = outputs["project_id"]
+    SILVER_BUCKET = outputs["silver_bucket_name"]
+    SILVER_DATASET_ID = outputs["silver_dataset_id"]
+
+    run_create_external_table(
+        GCP_PROJECT_ID=GCP_PROJECT_ID,
+        SILVER_DATASET_ID=SILVER_DATASET_ID,
+        SILVER_BUCKET=SILVER_BUCKET,
+    )

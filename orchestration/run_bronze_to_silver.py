@@ -173,15 +173,9 @@ def save_checkpoint(
     blob.upload_from_filename(tmp_file_path)
 
 
-def run_bronze_to_silver() -> None:
-    tf_dir = Path(__file__).parent.parent / "infra" / "terraform"
-    outputs = get_terraform_outputs(tf_dir)
-
-    GCP_PROJECT_ID = outputs["project_id"]
-    BRONZE_BUCKET = outputs["bronze_bucket_name"]
-    SILVER_BUCKET = outputs["silver_bucket_name"]
-    BRONZE_DATASET_ID = outputs["bronze_dataset_id"]
-
+def run_bronze_to_silver(
+    GCP_PROJECT_ID: str, BRONZE_DATASET_ID: str, BRONZE_BUCKET: str, SILVER_BUCKET: str
+) -> None:
     checkpoint_data, tmp_checkpoint_path, checkpoint_blob = load_checkpoint(
         SILVER_BUCKET, "silver/checkpoints/bronze_file_state.json"
     )
@@ -204,4 +198,14 @@ def run_bronze_to_silver() -> None:
 
 
 if __name__ == "__main__":
-    run_bronze_to_silver()
+    tf_dir = Path(__file__).parent.parent / "infra" / "terraform"
+    outputs = get_terraform_outputs(tf_dir)
+
+    GCP_PROJECT_ID = outputs["project_id"]
+    BRONZE_BUCKET = outputs["bronze_bucket_name"]
+    SILVER_BUCKET = outputs["silver_bucket_name"]
+    BRONZE_DATASET_ID = outputs["bronze_dataset_id"]
+
+    run_bronze_to_silver(
+        GCP_PROJECT_ID, BRONZE_DATASET_ID, BRONZE_BUCKET, SILVER_BUCKET
+    )
