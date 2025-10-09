@@ -28,17 +28,21 @@ build/
 # Secrets
 *.pem
 *.key
+gcp-credentials.json
 
 # Terraform
 *.tfstate
 *.tfstate.backup
 *.tfplan
+*.plan
+*.tfvars
+*.tfvars.json
 .terraform/
 crash.log
 crash.log.*
-*.tfvars
-*.tfvars.json
-*.plan
 
-gcp-credentials.json
+# Logs
 logs/
+
+# Tests
+extractor/test/

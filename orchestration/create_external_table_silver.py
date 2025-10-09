@@ -1,3 +1,4 @@
+# orchestration/create_external_table_silver.py
 from pathlib import Path
 from python_terraform import Terraform
 from google.cloud import bigquery
@@ -55,7 +56,7 @@ def create_silver_external_table(
     print(f"External table {table_ref} created or replaced successfully.")
 
 
-def main():
+def run_create_external_table() -> None:
     tf_dir = Path(__file__).parent.parent / "infra" / "terraform"
     outputs = get_terraform_outputs(tf_dir)
 
@@ -81,4 +82,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    run_create_external_table()

@@ -1,3 +1,4 @@
+# orchestration/run_bronze_to_silver.py
 import json
 import re
 import tempfile
@@ -172,7 +173,7 @@ def save_checkpoint(
     blob.upload_from_filename(tmp_file_path)
 
 
-def main():
+def run_bronze_to_silver() -> None:
     tf_dir = Path(__file__).parent.parent / "infra" / "terraform"
     outputs = get_terraform_outputs(tf_dir)
 
@@ -203,4 +204,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    run_bronze_to_silver()
