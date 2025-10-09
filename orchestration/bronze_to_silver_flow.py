@@ -4,7 +4,12 @@ from prefect import flow, task
 from prefect_shell import ShellOperation
 
 
-@task(log_prints=True, name="Run Bronze to Silver ETL Script")
+@task(
+    log_prints=True,
+    name="Run Bronze to Silver ELT Script",
+    retries=2,
+    retry_delay_seconds=10,
+)
 def run_bronze_to_silver_script() -> None:
     project_root = Path(__file__).parent.parent
     script_path = project_root / "silver" / "run_bronze_to_silver.sh"
@@ -37,7 +42,7 @@ def refresh_silver_external_tables() -> None:
 
 @flow(log_prints=True, name="Bronze to Silver ELT Flow")
 def bronze_to_silver_flow() -> None:
-    print("Starting Bronze to Silver ETL Flow...")
+    print("Starting Bronze to Silver ELT Flow...")
 
     run_bronze_to_silver_script()
     refresh_silver_external_tables()

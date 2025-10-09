@@ -33,19 +33,51 @@ echo "Bronze Dataset ID: ${BRONZE_DATASET_ID}"
 echo "--------------------------"
 
 # --- 2. Find dates to process (delta logic) ---
-echo "Finding dates to process..."
-source_dates=$(gsutil ls -d "gs://${BRONZE_BUCKET}/bronze/*/*/*/" 2>/dev/null | awk -F/ '{print $(NF-3)"-"$(NF-2)"-"$(NF-1)}' | grep -E '^[0-9]{4}-[0-9]{2}-[0-9]{2}$' | sort)
-processed_dates=$(gsutil ls -d "gs://${SILVER_BUCKET}/silver/items/ingest_date=*/" 2>/dev/null | sed 's|.*ingest_date=||' | sed 's|/||' | sort -u || true)
-dates_to_process=$(comm -23 <(echo "${source_dates}") <(echo "${processed_dates}"))
+CHECKPOINT_FILE="gs://${SILVER_BUCKET}/silver/checkpoints/bronze_file_state.json"
+TMP_CHECKPOINT="/tmp/bronze_file_state.json"
 
+
+# Download the existing checkpoint file if it exists, otherwise create an empty JSON object
+if gsutil -q stat "${CHECKPOINT_FILE}"; then
+  gsutil cp "${CHECKPOINT_FILE}" "${TMP_CHECKPOINT}"
+else
+  echo "{}" > "${TMP_CHECKPOINT}"
+fi
+
+dates_to_process=""
+
+echo "Checking for new or updated data in Bronze bucket..."
+
+# List all date-partitioned directories in the Bronze bucket
+for path in $(gsutil ls -d "gs://${BRONZE_BUCKET}/bronze/*/*/*/" 2>/dev/null); do
+  ingest_date=$(echo "$path" | awk -F/ '{print $(NF-3)"-"$(NF-2)"-"$(NF-1)}')
+
+  # Count files and total bytes in the directory
+  file_count=$(gsutil ls "${path}*" 2>/dev/null | wc -l | tr -d ' ')
+  total_bytes=$(gsutil du -s "${path}" | awk '{print $1}')
+
+
+  # Compare with the checkpoint
+  old_count=$(jq -r --arg d "$ingest_date" '.[$d].file_count // empty' "${TMP_CHECKPOINT}")
+  old_bytes=$(jq -r --arg d "$ingest_date" '.[$d].total_bytes // empty' "${TMP_CHECKPOINT}")
+
+
+  # If counts or bytes differ, mark this date for processing
+  if [ -z "$old_count" ] || [ "$old_count" != "$file_count" ] || [ "$old_bytes" != "$total_bytes" ]; then
+    dates_to_process="${dates_to_process}${ingest_date}\n"
+  fi
+done
+
+echo "Dates to process:"
+dates_to_process=$(echo -e "$dates_to_process" | sort -u)
+echo "$dates_to_process"
+
+# If no dates to process, exit
 if [ -z "$dates_to_process" ]; then
-  echo "All dates are already processed. Exiting."
+  echo "No new or updated data to process. Exiting."
   exit 0
 fi
 
-echo "Dates to be processed:"
-echo "$dates_to_process"
-echo "--------------------------"
 
 # --- 3. Process each date with a BigQuery multi-statement script ---
 for ingest_date in ${dates_to_process}; do
@@ -99,6 +131,18 @@ for ingest_date in ${dates_to_process}; do
   bq query --project_id="${GCP_PROJECT_ID}" --use_legacy_sql=false --format=none "${BQ_SCRIPT}"
   echo "Processing for date ${ingest_date} completed."
   echo "--------------------------"
+
+  # --- 4. Update the checkpoint file ---
+  BRONZE_PATH="gs://${BRONZE_BUCKET}/bronze/${ingest_date_path}/"
+  file_count=$(gsutil ls "${BRONZE_PATH}*" 2>/dev/null | wc -l | tr -d ' ')
+  total_bytes=$(gsutil du -s "${BRONZE_PATH}" | awk '{print $1}')
+  jq --arg d "$ingest_date" --arg fc "$file_count" --arg tb "$total_bytes" \
+    '.[$d] = {file_count: ($fc | tonumber), total_bytes: ($tb | tonumber)}' \
+    "${TMP_CHECKPOINT}" > "${TMP_CHECKPOINT}.tmp" && mv "${TMP_CHECKPOINT}.tmp" "${TMP_CHECKPOINT}"
+
 done
+
+# Upload the updated checkpoint file back to GCS
+gsutil cp "${TMP_CHECKPOINT}" "${CHECKPOINT_FILE}"
 
 echo "All unprocessed dates have been processed."
