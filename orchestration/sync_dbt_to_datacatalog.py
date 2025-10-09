@@ -6,12 +6,12 @@ from google.api_core.exceptions import AlreadyExists
 
 
 # --- 1. Configure environment variables ---
-load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), "../../.env"))
+load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), "../.env"))
 
 PROJECT_ID = os.getenv("PROJECT_ID")
 LOCATION = os.getenv("GCP_REGION")
 MANIFEST_PATH = os.path.join(
-    os.path.dirname(__file__), "../../dbt_hacker_news/target/manifest.json"
+    os.path.dirname(__file__), "../dbt_hacker_news/target/manifest.json"
 )
 MANIFEST_PATH = os.path.abspath(MANIFEST_PATH)
 

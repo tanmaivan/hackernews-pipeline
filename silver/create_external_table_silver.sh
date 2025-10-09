@@ -1,4 +1,5 @@
 #!/bin/bash
+# silver/create_external_table_silver.sh
 #
 # This script automatically creates or replaces a BigQuery External Table
 # pointing to partitioned Parquet data in the Silver bucket.
