@@ -4,8 +4,15 @@ import re
 import tempfile
 from pathlib import Path
 from typing import Dict, List, Any
-from google.cloud import bigquery, storage
+from google.cloud import storage
 from python_terraform import Terraform
+from extractor.src.gcs_utils import get_gcs_client, get_bq_client
+from prefect_gcp import GcpCredentials
+
+gcp_credentials_block = GcpCredentials.load("gcp-creds")
+
+# If you want to use without Prefect, uncomment the line below and comment the line above. But you have to set the environment variable GOOGLE_APPLICATION_CREDENTIALS to point to your service account key file or use other authentication methods provided by google-cloud library
+# gcp_credentials_block = GcpCredentials()
 
 
 def get_terraform_outputs(tf_dir: Path) -> Dict[str, Any]:
@@ -32,11 +39,11 @@ def get_terraform_outputs(tf_dir: Path) -> Dict[str, Any]:
     return outputs
 
 
-def load_checkpoint(bucket_name: str, checkpoint_file: str):
+def load_checkpoint(bucket_name: str, checkpoint_file: str, gcp_credentials_block):
     """
     This function loads the checkpoint file from GCS. If it doesn't exist, it initializes an empty checkpoint.
     """
-    client = storage.Client()
+    client = get_gcs_client(gcp_credentials_block)
     bucket = client.bucket(bucket_name)
     blob = bucket.blob(checkpoint_file)
 
@@ -55,10 +62,8 @@ def load_checkpoint(bucket_name: str, checkpoint_file: str):
     return checkpoint_data, tmp_file_path, blob
 
 
-def list_bronze_dates(bucket_name: str) -> List[str]:
-    from google.cloud import storage
-
-    client = storage.Client()
+def list_bronze_dates(bucket_name: str, gcp_credentials_block) -> List[str]:
+    client = get_gcs_client(gcp_credentials_block)
 
     blobs = client.list_blobs(bucket_name, prefix="bronze/")
     dates = set()
@@ -70,14 +75,14 @@ def list_bronze_dates(bucket_name: str) -> List[str]:
 
 
 def get_dates_to_process(
-    bronze_bucket: str, checkpoint_data: Dict[str, Any]
+    bronze_bucket: str, checkpoint_data: Dict[str, Any], gcp_credentials_block
 ) -> List[str]:
     """
     This function determines which ingestion dates need to be processed based on the checkpoint data.
     """
-    client = storage.Client()
+    client = get_gcs_client(gcp_credentials_block)
     dates_to_process = []
-    for ingest_date in list_bronze_dates(bronze_bucket):
+    for ingest_date in list_bronze_dates(bronze_bucket, gcp_credentials_block):
         ingest_path = f"bronze/{ingest_date.replace('-', '/')}/"
         blobs = list(client.list_blobs(bronze_bucket, prefix=ingest_path))
         file_count = len(blobs)
@@ -98,12 +103,13 @@ def process_dates_in_bq(
     bronze_bucket: str,
     silver_bucket: str,
     checkpoint_data: Dict[str, Any],
+    gcp_credentials_block,
 ) -> None:
     """
     This function processes the specified ingestion dates in BigQuery.
     """
-    bq_client = bigquery.Client(project=gcp_project)
-    storage_client = storage.Client()
+    bq_client = get_bq_client(gcp_credentials_block)
+    storage_client = get_gcs_client(gcp_credentials_block)
 
     for ingest_date in dates_to_process:
         ingest_date_path = ingest_date.replace("-", "/")
@@ -174,12 +180,20 @@ def save_checkpoint(
 
 
 def run_bronze_to_silver(
-    GCP_PROJECT_ID: str, BRONZE_DATASET_ID: str, BRONZE_BUCKET: str, SILVER_BUCKET: str
+    GCP_PROJECT_ID: str,
+    BRONZE_DATASET_ID: str,
+    BRONZE_BUCKET: str,
+    SILVER_BUCKET: str,
+    gcp_credentials_block,
 ) -> None:
     checkpoint_data, tmp_checkpoint_path, checkpoint_blob = load_checkpoint(
-        SILVER_BUCKET, "silver/checkpoints/bronze_file_state.json"
+        SILVER_BUCKET,
+        "silver/checkpoints/bronze_file_state.json",
+        gcp_credentials_block,
     )
-    dates_to_process = get_dates_to_process(BRONZE_BUCKET, checkpoint_data)
+    dates_to_process = get_dates_to_process(
+        BRONZE_BUCKET, checkpoint_data, gcp_credentials_block
+    )
 
     if not dates_to_process:
         print("No new or updated data to process. Exiting.")
@@ -192,6 +206,7 @@ def run_bronze_to_silver(
         BRONZE_BUCKET,
         SILVER_BUCKET,
         checkpoint_data,
+        gcp_credentials_block,
     )
     save_checkpoint(checkpoint_data, tmp_checkpoint_path, checkpoint_blob)
     print("All unprocessed dates have been processed.")
@@ -207,5 +222,9 @@ if __name__ == "__main__":
     BRONZE_DATASET_ID = outputs["bronze_dataset_id"]
 
     run_bronze_to_silver(
-        GCP_PROJECT_ID, BRONZE_DATASET_ID, BRONZE_BUCKET, SILVER_BUCKET
+        GCP_PROJECT_ID,
+        BRONZE_DATASET_ID,
+        BRONZE_BUCKET,
+        SILVER_BUCKET,
+        gcp_credentials_block,
     )

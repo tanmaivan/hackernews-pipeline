@@ -1,6 +1,6 @@
 # extractor/src/gcs_utils.py
 import json
-from google.cloud import storage
+from google.cloud import storage, bigquery
 from google.api_core import exceptions as gcs_exceptions
 from google.oauth2.service_account import Credentials
 
@@ -17,6 +17,20 @@ def get_gcs_client(gcp_credentials_block):
     credentials = Credentials.from_service_account_info(creds_dict)
 
     return storage.Client(credentials=credentials)
+
+
+def get_bq_client(gcp_credentials_block):
+    """
+    Tao Google BigQuery client tu Prefect GCP Credentials block.
+    Args:
+        gcp_credentials_block: Prefect GCP Credentials block chua thong tin xac thuc.
+    Returns:
+        bigquery.Client: BigQuery client.
+    """
+    creds_dict = gcp_credentials_block.service_account_info.get_secret_value()
+    credentials = Credentials.from_service_account_info(creds_dict)
+
+    return bigquery.Client(credentials=credentials)
 
 
 def upload_to_gcs(

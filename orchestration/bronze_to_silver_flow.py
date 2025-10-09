@@ -3,6 +3,9 @@ from prefect import flow, task
 from prefect.variables import Variable
 from .run_bronze_to_silver import run_bronze_to_silver
 from .create_external_table_silver import run_create_external_table
+from prefect_gcp import GcpCredentials
+
+gcp_credentials_block = GcpCredentials.load("gcp-creds")
 
 GCP_PROJECT_ID = Variable.get("project_id")
 BRONZE_DATASET_ID = Variable.get("bronze_dataset")
@@ -23,6 +26,7 @@ def run_bronze_to_silver_script() -> None:
         BRONZE_DATASET_ID=BRONZE_DATASET_ID,
         BRONZE_BUCKET=BRONZE_BUCKET,
         SILVER_BUCKET=SILVER_BUCKET,
+        gcp_credentials_block=gcp_credentials_block,
     )
 
 
@@ -32,6 +36,7 @@ def refresh_silver_external_tables() -> None:
         GCP_PROJECT_ID=GCP_PROJECT_ID,
         SILVER_DATASET_ID=SILVER_DATASET_ID,
         SILVER_BUCKET=SILVER_BUCKET,
+        gcp_credentials_block=gcp_credentials_block,
     )
 
 

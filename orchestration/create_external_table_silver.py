@@ -1,8 +1,14 @@
 # orchestration/create_external_table_silver.py
 from pathlib import Path
 from python_terraform import Terraform
-from google.cloud import bigquery
 from typing import Dict, Any
+from extractor.src.gcs_utils import get_bq_client
+from prefect_gcp import GcpCredentials
+
+gcp_credentials_block = GcpCredentials.load("gcp-creds")
+
+# If you want to use without Prefect, uncomment the line below and comment the line above. But you have to set the environment variable GOOGLE_APPLICATION_CREDENTIALS to point to your service account key file or use other authentication methods provided by google-cloud library
+# gcp_credentials_block = GcpCredentials()
 
 
 def get_terraform_outputs(tf_dir: Path) -> Dict[str, Any]:
@@ -32,9 +38,10 @@ def create_silver_external_table(
     project_id: str,
     dataset_id: str,
     bucket_name: str,
-    table_name: str = "stg_hackernews_items",
+    table_name: str,
+    gcp_credentials_block,
 ) -> None:
-    bq_client = bigquery.Client(project=project_id)
+    bq_client = get_bq_client(gcp_credentials_block)
     table_ref = f"{project_id}.{dataset_id}.{table_name}"
 
     create_table_sql = f"""
@@ -57,7 +64,10 @@ def create_silver_external_table(
 
 
 def run_create_external_table(
-    GCP_PROJECT_ID: str, SILVER_DATASET_ID: str, SILVER_BUCKET: str
+    GCP_PROJECT_ID: str,
+    SILVER_DATASET_ID: str,
+    SILVER_BUCKET: str,
+    gcp_credentials_block,
 ) -> None:
     """
     This function orchestrates the creation of an external table in BigQuery.
@@ -74,6 +84,8 @@ def run_create_external_table(
         project_id=GCP_PROJECT_ID,
         dataset_id=SILVER_DATASET_ID,
         bucket_name=SILVER_BUCKET,
+        table_name="stg_hackernews_items",
+        gcp_credentials_block=gcp_credentials_block,
     )
 
     print("Finished creating external table.")
@@ -92,4 +104,5 @@ if __name__ == "__main__":
         GCP_PROJECT_ID=GCP_PROJECT_ID,
         SILVER_DATASET_ID=SILVER_DATASET_ID,
         SILVER_BUCKET=SILVER_BUCKET,
+        gcp_credentials_block=gcp_credentials_block,
     )
