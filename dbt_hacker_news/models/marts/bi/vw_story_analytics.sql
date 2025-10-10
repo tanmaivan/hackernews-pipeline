@@ -20,7 +20,7 @@ WITH
 
 SELECT
     -- Story details
-    fs.item_key, di.item_id, di.title, di.url, di.domain AS story_domain,
+    fs.item_key, di.item_id, di.title, di.url, COALESCE(di.domain, 'N/A') AS story_domain,
     -- Author details
     fs.user_key, du.user_name, du.author_lifetime_days, du.total_posts_count,
     -- Time details
