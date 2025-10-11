@@ -1,10 +1,10 @@
-### Step 2: GCP Infrastructure with Terraform
+## Step 2: GCP Infrastructure with Terraform
 
-#### Objective
+### Objective
 
 This step focuses on provisioning the entire cloud infrastructure required for the project using Terraform. By defining our infrastructure as code (IaC), we ensure a reproducible, version-controlled, and automated setup. This eliminates manual configuration, reduces the risk of errors, and allows us to easily manage the lifecycle of our cloud resources.
 
-#### 1\. Google Cloud Project Setup
+### 1\. Google Cloud Project Setup
 
 Before we can use Terraform, a Google Cloud Platform (GCP) project must exist and be configured for billing. This is a one-time manual setup.
 
@@ -16,13 +16,13 @@ Before we can use Terraform, a Google Cloud Platform (GCP) project must exist an
   gcloud auth application-default login
   ```
 
-#### 2\. What is Terraform?
+### 2\. What is Terraform?
 
 Terraform is an open-source Infrastructure as Code (IaC) tool created by HashiCorp. It allows you to safely and predictably create, change, and improve infrastructure. Instead of using a graphical user interface to configure resources, you write configuration files that describe the desired state of your infrastructure. Terraform then works out a plan to achieve that state and executes it. This approach makes infrastructure management more transparent, repeatable, and less prone to human error.
 
 To install the Terraform CLI, follow the official tutorial for your operating system available at the [HashiCorp Developer portal](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli).
 
-#### 3\. Creating the Terraform Remote State Bucket
+### 3\. Creating the Terraform Remote State Bucket
 
 A critical best practice when working with Terraform is to manage its state file remotely. The state file is a JSON file that keeps track of the resources Terraform manages. Storing it in a remote GCS bucket, rather than on your local machine, provides a single source of truth, enables collaboration, and prevents accidental loss of the state.
 
@@ -45,7 +45,7 @@ gsutil uniformbucketlevelaccess set on gs://$TFSTATE_BUCKET
 gsutil versioning set on gs://$TFSTATE_BUCKET
 ```
 
-#### 4\. Writing the Terraform Configuration
+### 4\. Writing the Terraform Configuration
 
 Our Terraform code is organized into several files within the `infra/terraform` directory, each with a specific purpose.
 
@@ -117,7 +117,7 @@ resource "google_storage_bucket_iam_member" "bronzer_writer" {
 # ... (and so on for all other IAM bindings)
 ```
 
-#### 5\. Applying the Terraform Configuration
+### 5\. Applying the Terraform Configuration
 
 With the configuration files in place, we can now provision the infrastructure.
 

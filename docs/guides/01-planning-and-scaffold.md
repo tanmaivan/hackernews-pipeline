@@ -1,6 +1,6 @@
-### Step 1: Plan, Repository, Governance & Project Scaffold
+## Step 1: Plan, Repository, Governance & Project Scaffold
 
-#### Objective
+### Objective
 
 This initial step serves as the foundation for the entire project. The primary objective is to establish a robust and consistent structure from the outset. This includes comprehensive project planning, initializing a version-controlled repository, and configuring essential governance tools. Completing this stage ensures that the project remains maintainable, the code quality stays high, and collaboration is streamlined.
 
