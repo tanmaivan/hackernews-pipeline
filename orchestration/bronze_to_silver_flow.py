@@ -1,8 +1,8 @@
 # orchestration/bronze_to_silver_flow.py
 from prefect import flow, task
 from prefect.variables import Variable
-from .run_bronze_to_silver import run_bronze_to_silver
-from .create_external_table_silver import run_create_external_table
+from ..transformation.run_bronze_to_silver import run_bronze_to_silver
+from ..transformation.create_external_table_silver import run_create_external_table
 from prefect_gcp import GcpCredentials
 
 gcp_credentials_block = GcpCredentials.load("gcp-creds")

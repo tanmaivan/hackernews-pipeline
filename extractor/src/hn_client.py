@@ -15,13 +15,13 @@ BASE_URL = "https://hacker-news.firebaseio.com/v0/"
 
 
 class APIError(Exception):
-    "Exception tuy chinh cho cac loi API khong nen retry (vd: 4xx)"
+    "Exception for non-retryable API errors (e.g., 4xx)"
 
     pass
 
 
 class TemporaryAPIError(Exception):
-    "Exception tuy chinh cho cac loi API co the retry (vd: 5xx)"
+    "Exception for temporary API errors (e.g., 5xx)"
 
     pass
 
@@ -33,16 +33,14 @@ class TemporaryAPIError(Exception):
 )
 def fetch_item(item_id: int) -> Optional[Dict[str, Any]]:
     """
-    Lay thong tin cua mot item tu Hacker News API.
-    Ham duoc retry neu gap loi tam thoi (5xx).
-
+    Fetch an item from the Hacker News API. Retries on temporary errors (5xx).
     Args:
-        item_id (int): ID cua item can lay.
+        item_id (int): The ID of the item to fetch.
     Returns:
-        Optional[Dict[str, Any]]: Du lieu item neu thanh cong, None neu item khong ton tai.
+        Optional[Dict[str, Any]]: The item data if successful, None if the item does not exist.
     Raises:
-        APIError: Neu gap loi khong nen retry (4xx).
-        TemporaryAPIError: Neu gap loi co the retry (5xx).
+        APIError: If a non-retryable error occurs (4xx).
+        TemporaryAPIError: If a retryable error occurs (5xx).
     """
     url = f"{BASE_URL}/item/{item_id}.json"
 
@@ -77,9 +75,9 @@ def fetch_item(item_id: int) -> Optional[Dict[str, Any]]:
 
 def get_max_item_id() -> int:
     """
-    Lay ID cua item lon nhat tu Hacker News API.
+    Fetches the maximum item ID from the Hacker News API.
     Returns:
-        int: ID cua item lon nhat.
+        int: The maximum item ID.
     """
     url = f"{BASE_URL}/maxitem.json"
 
@@ -101,13 +99,12 @@ def get_max_item_id() -> int:
 
 def fetch_story_with_comments(story_id: int) -> List[Dict[str, Any]]:
     """
-    Lay mot story va tat ca comment cua no tu Hacker News API.
-    Su dung ThreadPoolExecutor de lay cac comment dong thoi.
-
+    Fetch a story and all its comments from the Hacker News API.
+    Uses ThreadPoolExecutor to fetch comments concurrently.
     Args:
-        story_id (int): ID cua story can lay.
+        story_id (int): The ID of the story to fetch.
     Returns:
-        List[Dict[str, Any]]: Danh sach story va cac comment lien quan.
+        List[Dict[str, Any]]: A list containing the story and all related comments.
     """
 
     all_items = []
@@ -147,14 +144,13 @@ def fetch_items_concurrently(
     start_id: int, end_id: int, max_workers: int = 20
 ) -> List[Optional[Dict[str, Any]]]:
     """
-    Lay nhieu item tu Hacker News API mot cach dong thoi su dung ThreadPoolExecutor.
-
+    Fetch multiple items from the Hacker News API concurrently using ThreadPoolExecutor.
     Args:
-        start_id (int): ID bat dau.
-        end_id (int): ID ket thuc.
-        max_workers (int): So luong thread toi da.
+        start_id (int): The starting item ID.
+        end_id (int): The ending item ID.
+        max_workers (int): The maximum number of threads to use.
     Returns:
-        List[Optional[Dict[str, Any]]]: Danh sach cac item duoc lay.
+        List[Optional[Dict[str, Any]]]: A list of fetched items.
     """
     print(f"Fetching items from {start_id} to {end_id} with {max_workers} workers...")
     items = []

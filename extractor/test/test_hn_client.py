@@ -8,7 +8,6 @@ from extractor.src.hn_client import (
 
 
 def print_json(data):
-    """Hàm helper để in JSON cho đẹp."""
     print(json.dumps(data, indent=2))
 
 
@@ -23,7 +22,6 @@ if __name__ == "__main__":
     print("\n" + "=" * 40 + "\n")
 
     # --- Test fetch_item ---
-    # ID 8863 là bài "My YC app: Dropbox - Throw away your USB drive"
     story_id_to_test = 8863
     print(f"--- 2. Testing fetch_item for a valid story (ID: {story_id_to_test}) ---")
     try:
@@ -37,7 +35,7 @@ if __name__ == "__main__":
 
     print("\n" + "=" * 40 + "\n")
 
-    # --- Test với ID không tồn tại (một số rất lớn) ---
+    # --- Test fetch_item with a non-existent ID (a very large number) ---
     invalid_id = 999999999
     print(f"--- 3. Testing fetch_item for a non-existent item (ID: {invalid_id}) ---")
     try:
@@ -48,14 +46,13 @@ if __name__ == "__main__":
         else:
             print(f"Correctly returned None for non-existent ID {invalid_id}.")
     except Exception as e:
-        # Ta kỳ vọng nó sẽ retry vài lần và cuối cùng ném ra lỗi hoặc trả về None
         print(f"Handled error as expected: {e}")
 
     print("\n" + "=" * 40 + "\n")
 
-    # --- Test fetch_story_with_comments (Lưu ý: sẽ gọi nhiều API) ---
-    # ID 8863 là một story kinh điển về Dropbox, có rất nhiều comments.
-    # Sử dụng ID này để đảm bảo test đúng chức năng.
+    # --- Test fetch_story_with_comments (Note: will call many APIs) ---
+    # ID 8863 is a classic story about Dropbox with many comments.
+    # Use this ID to ensure the function is tested properly.
     story_with_comments_id = 8863
     print(
         f"--- 4. Testing fetch_story_with_comments (ID: {story_with_comments_id}) ---"
@@ -63,13 +60,11 @@ if __name__ == "__main__":
     try:
         all_items = fetch_story_with_comments(story_with_comments_id)
 
-        # Thêm một bước kiểm tra để tránh lỗi
         if all_items:
             print(
                 f"Fetched story and a total of {len(all_items) - 1} child items (comments)."
             )
             print("Sample item (the story itself):")
-            # In ra story gốc
             print_json(all_items[0])
         else:
             print(

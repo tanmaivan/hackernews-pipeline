@@ -3,7 +3,7 @@ from datetime import datetime
 from extractor.src.hn_client import get_max_item_id, fetch_items_concurrently
 from extractor.src.processing import process_items_to_gzipped_ndjson
 from extractor.src.gcs_utils import upload_to_gcs, read_checkpoint, write_checkpoint
-from extractor.src.config import BUCKET_NAME
+from prefect.variables import Variable
 import time
 from prefect import flow, task
 from prefect_gcp import GcpCredentials
@@ -11,6 +11,7 @@ from prefect_gcp import GcpCredentials
 
 CHUNK_SIZE = 10000  # number of items to process in each chunk
 TOTAL_ITEMS = 100000  # total number of items to backfill
+BUCKET_NAME = Variable.get("bronze_bucket")
 
 
 @task(log_prints=True, retries=3, retry_delay_seconds=10)

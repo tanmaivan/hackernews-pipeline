@@ -1,4 +1,4 @@
-# orchestration/create_external_table_silver.py
+# transformation/create_external_table_silver.py
 from pathlib import Path
 from python_terraform import Terraform
 from typing import Dict, Any
@@ -93,7 +93,7 @@ def run_create_external_table(
 
 
 if __name__ == "__main__":
-    tf_dir = Path(__file__).parent.parent / "infra" / "terraform"
+    tf_dir = Path(__file__).parent.parent / "terraform"
     outputs = get_terraform_outputs(tf_dir)
 
     GCP_PROJECT_ID = outputs["project_id"]

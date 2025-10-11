@@ -7,9 +7,9 @@ from google.oauth2.service_account import Credentials
 
 def get_gcs_client(gcp_credentials_block):
     """
-    Tao Google Cloud Storage (GCS) client tu Prefect GCP Credentials block.
+    Create a Google Cloud Storage (GCS) client from a Prefect GCP Credentials block.
     Args:
-        gcp_credentials_block: Prefect GCP Credentials block chua thong tin xac thuc.
+        gcp_credentials_block: Prefect GCP Credentials block containing authentication info.
     Returns:
         storage.Client: GCS client.
     """
@@ -21,9 +21,9 @@ def get_gcs_client(gcp_credentials_block):
 
 def get_bq_client(gcp_credentials_block):
     """
-    Tao Google BigQuery client tu Prefect GCP Credentials block.
+    Creates a Google BigQuery client from a Prefect GCP Credentials block.
     Args:
-        gcp_credentials_block: Prefect GCP Credentials block chua thong tin xac thuc.
+        gcp_credentials_block: Prefect GCP Credentials block containing authentication info.
     Returns:
         bigquery.Client: BigQuery client.
     """
@@ -37,15 +37,15 @@ def upload_to_gcs(
     bucket_name: str, blob_name: str, data_stream, manifest: dict, gcp_credentials_block
 ):
     """
-    Upload du lieu tu stream len Google Cloud Storage (GCS) va luu manifest.
+    Upload data from a stream to Google Cloud Storage (GCS) and save a manifest.
     Args:
-        bucket_name (str): Ten cua GCS bucket.
-        blob_name (str): Ten cua dich cuoi cung cua file trong bucket.
-        data_stream: Stream chua du lieu can upload.
-        manifest (dict): Metadata cua file de luu o manifest.
-        gcp_credentials_block: Prefect GCP Credentials block chua thong tin xac thuc.
+        bucket_name (str): Name of the GCS bucket.
+        blob_name (str): Final destination name of the file in the bucket.
+        data_stream: Stream containing the data to upload.
+        manifest (dict): Metadata of the file to save in the manifest.
+        gcp_credentials_block: Prefect GCP Credentials block containing authentication info.
     Raises:
-        gcs_exceptions.GoogleAPIError: Neu co loi khi upload len GCS.
+        gcs_exceptions.GoogleAPIError: If there is an error uploading to GCS.
     """
     try:
         storage_client = get_gcs_client(gcp_credentials_block)
@@ -54,18 +54,18 @@ def upload_to_gcs(
         final_blob_name = blob_name
         temp_blob_name = f"_inflight/{blob_name}"
 
-        # Upload file tam thoi
+        # Upload to temporary location
         print(f"Uploading to temporary location: gs://{bucket_name}/{temp_blob_name}")
         temp_blob = bucket.blob(temp_blob_name)
         temp_blob.upload_from_file(data_stream, content_type="application/gzip")
         print("Upload to temporary location completed.")
 
-        # Chuyen file tu tam thoi sang vi tri cuoi cung
+        # Copy to final location
         print(f"Copying to final location: gs://{bucket_name}/{final_blob_name}")
         bucket.copy_blob(temp_blob, bucket, final_blob_name)
         print("Copy to final location completed.")
 
-        # Tao va upload manifest
+        # Create and upload manifest
         manifest_blob_name = final_blob_name.replace(".jsonl.gz", "_manifest.json")
         manifest_blob = bucket.blob(manifest_blob_name)
         manifest_blob.upload_from_string(
@@ -85,7 +85,7 @@ def upload_to_gcs(
         raise
 
     finally:
-        # Xoa file tam thoi neu con ton tai
+        # Delete temporary file if it exists
         try:
             if bucket.blob(temp_blob_name).exists():
                 bucket.blob(temp_blob_name).delete()
@@ -98,15 +98,15 @@ def read_checkpoint(
     bucket_name: str, checkpoint_path: str, gcp_credentials_block
 ) -> int:
     """
-    Doc checkpoint tu GCS de biet duoc item_id bat dau.
+    Read checkpoint from GCS to determine the starting item_id.
     Args:
-        bucket_name (str): Ten cua GCS bucket.
-        checkpoint_path (str): Duong dan den file checkpoint trong bucket.
-        gcp_credentials_block: Prefect GCP Credentials block chua thong tin xac thuc.
+        bucket_name (str): Name of the GCS bucket.
+        checkpoint_path (str): Path to the checkpoint file in the bucket.
+        gcp_credentials_block: Prefect GCP Credentials block containing authentication info.
     Returns:
-        int: item_id bat dau. Neu khong co checkpoint, tra ve 0.
+        int: Starting item_id. If no checkpoint exists, returns 0.
     Raises:
-        gcs_exceptions.GoogleAPIError: Neu co loi khi doc tu GCS.
+        gcs_exceptions.GoogleAPIError: If there is an error reading from GCS.
     """
     try:
         storage_client = get_gcs_client(gcp_credentials_block)
@@ -131,14 +131,14 @@ def write_checkpoint(
     bucket_name: str, checkpoint_path: str, last_id: int, gcp_credentials_block
 ):
     """
-    Ghi checkpoint len GCS de luu item_id da xu ly cuoi cung.
+    Write checkpoint to GCS to save the last processed item_id.
     Args:
-        bucket_name (str): Ten cua GCS bucket.
-        checkpoint_path (str): Duong dan den file checkpoint trong bucket.
-        last_id (int): item_id da xu ly cuoi cung.
-        gcp_credentials_block: Prefect GCP Credentials block chua thong tin xac thuc.
+        bucket_name (str): Name of the GCS bucket.
+        checkpoint_path (str): Path to the checkpoint file in the bucket.
+        last_id (int): Last processed item_id.
+        gcp_credentials_block: Prefect GCP Credentials block containing authentication info.
     Raises:
-        gcs_exceptions.GoogleAPIError: Neu co loi khi ghi len GCS.
+        gcs_exceptions.GoogleAPIError: If there is an error writing to GCS.
     """
     try:
         storage_client = get_gcs_client(gcp_credentials_block)

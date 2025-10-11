@@ -2,31 +2,28 @@ import io
 import time
 from extractor.src.gcs_utils import upload_to_gcs
 
-# --- CẤU HÌNH ---
-# THAY THẾ BẰNG TÊN BUCKET CỦA BẠN
 BUCKET_NAME = "hn-dev-bronze-bucket"
 
 
 def test_atomic_upload():
     """
-    Một bài test đơn giản để kiểm tra chức năng upload atomic.
+    A simple test to verify the atomic upload functionality.
     """
     print("--- Starting atomic upload test ---")
 
-    # 1. Dữ liệu giả
-    # Tạo một stream dữ liệu giả trong bộ nhớ
+    # Create a fake data stream
     fake_data = '{"id": 1, "name": "test_item_1"}\n{"id": 2, "name": "test_item_2"}\n'
     data_stream = io.BytesIO(fake_data.encode("utf-8"))
 
-    # Tạo một manifest giả
+    # Create a fake manifest
     manifest = {"source": "test_script", "item_count": 2}
 
-    # 2. Định nghĩa đường dẫn
-    # Sử dụng timestamp để mỗi lần chạy là duy nhất
+    # 2. Define paths
+    # Use timestamp to make each run unique
     timestamp = int(time.time())
-    blob_name = f"bronze/test_run/{timestamp}/test_data.jsonl"  # Không có .gz vì dữ liệu không nén
+    blob_name = f"bronze/test_run/{timestamp}/test_data.jsonl"  # No .gz because data is not compressed
 
-    # 3. Gọi hàm
+    # 3. Call the function
     try:
         upload_to_gcs(
             bucket_name=BUCKET_NAME,
