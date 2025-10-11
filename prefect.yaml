@@ -29,7 +29,17 @@ deployments:
     work_pool:
       name: data_pipeline_pool
     schedules:
-      - cron: 0 0 * * *
+      - cron: 0 1 * * *
+        timezone: UTC
+        day_or: true
+        active: true
+
+  - name: silver_to_gold_deployment
+    entrypoint: orchestration/silver_to_gold_flow.py:silver_to_gold_flow
+    work_pool:
+      name: data_pipeline_pool
+    schedules:
+      - cron: 0 2 * * *
         timezone: UTC
         day_or: true
         active: true
