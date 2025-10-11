@@ -135,7 +135,7 @@ def fetch_story_with_comments(story_id: int) -> List[Dict[str, Any]]:
                 except Exception as e:
                     print(f"Error fetching comment {item_id}: {e}")
             future_to_id = new_futures
-            time.sleep(0.1)  # De tranh qua tai API
+            time.sleep(0.1)  # to avoid overwhelming the API
 
     return all_items
 

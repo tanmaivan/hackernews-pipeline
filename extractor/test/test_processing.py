@@ -24,15 +24,15 @@ class TestProcessing(unittest.TestCase):
 
         # Test the return types and count
         self.assertIsInstance(
-            gzipped_stream, io.BytesIO, "Kết quả trả về phải là một BytesIO stream"
+            gzipped_stream, io.BytesIO, "The result must be a BytesIO stream"
         )
-        self.assertEqual(count, 2, "Số lượng item xử lý phải là 2")
+        self.assertEqual(count, 2, "The number of processed items must be 2")
 
         # Test the stream position is reset to the beginning
         self.assertEqual(
             gzipped_stream.tell(),
             0,
-            "Stream phải được seek về vị trí đầu tiên để có thể đọc",
+            "Stream must be seeked to the beginning to be read",
         )
 
         compressed_data = gzipped_stream.read()
@@ -56,11 +56,13 @@ class TestProcessing(unittest.TestCase):
         gzipped_stream, count = process_items_to_gzipped_ndjson(empty_items)
 
         # 3. Assertions
-        self.assertEqual(count, 0, "Số lượng item xử lý phải là 0")
+        self.assertEqual(count, 0, "Number of processed items must be 0")
 
         decompressed_data = gzip.decompress(gzipped_stream.read())
         self.assertEqual(
-            decompressed_data, b"", "Nội dung của stream sau khi giải nén phải là rỗng"
+            decompressed_data,
+            b"",
+            "Content of the stream after decompression must be empty",
         )
 
     def test_unserializable_item_is_skipped(self):
@@ -75,7 +77,7 @@ class TestProcessing(unittest.TestCase):
 
         gzipped_stream, count = process_items_to_gzipped_ndjson(items_with_error)
 
-        self.assertEqual(count, 2, "Chỉ có 2 item hợp lệ được xử lý")
+        self.assertEqual(count, 2, "Only 2 items should be processed successfully")
 
         decompressed_data = gzip.decompress(gzipped_stream.read()).decode("utf-8")
         result_items = [
@@ -85,9 +87,7 @@ class TestProcessing(unittest.TestCase):
         ids_in_result = {item["id"] for item in result_items}
         self.assertIn(1, ids_in_result)
         self.assertIn(3, ids_in_result)
-        self.assertNotIn(
-            2, ids_in_result, "Item không hợp lệ không nên có trong output"
-        )
+        self.assertNotIn(2, ids_in_result, "Invalid item should not be in the output")
 
 
 if __name__ == "__main__":

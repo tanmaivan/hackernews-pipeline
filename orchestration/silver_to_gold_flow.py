@@ -20,7 +20,7 @@ def run_dbt():
                     "type": "bigquery",
                     "method": "service-account-json",
                     "project": gcp.project,
-                    "keyfile_json": gcp.service_account_info.get_secret_value(),  # sửa chỗ này
+                    "keyfile_json": gcp.service_account_info.get_secret_value(),
                     "dataset": "hn_dev",
                     "location": "asia-southeast1",
                     "threads": 4,

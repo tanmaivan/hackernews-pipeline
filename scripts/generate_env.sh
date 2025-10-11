@@ -10,7 +10,7 @@ echo "Generating .env file from Terraform outputs..."
 # Extract Terraform outputs and write to .env file
 echo "PROJECT_ID=$(terraform output -raw project_id)" > ../.env
 echo "GCP_REGION=$(terraform output -raw region)" >> ../.env
-echo "PIPELINE_WORKER_SA=$(terraform output -raw pipeline_worker_service_account_email)" >> ../../.env
+echo "PIPELINE_WORKER_SA=$(terraform output -raw pipeline_worker_service_account_email)" >> ../.env
 echo "BRONZE_BUCKET=$(terraform output -raw bronze_bucket_name)" >> ../.env
 echo "SILVER_BUCKET=$(terraform output -raw silver_bucket_name)" >> ../.env
 echo "GOLD_BUCKET=$(terraform output -raw gold_bucket_name)" >> ../.env
