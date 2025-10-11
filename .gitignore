@@ -40,9 +40,20 @@ gcp-credentials.json
 .terraform/
 crash.log
 crash.log.*
+.terraform.lock.hcl
 
 # Logs
 logs/
 
 # Tests
 extractor/test/
+
+temp.txt
+
+.github/
+
+# dbt
+dbt_hacker_news/package-lock.yml
+dbt_hacker_news/target/
+dbt_hacker_news/dbt_packages/
+dbt_hacker_news/logs/

@@ -1,19 +1,19 @@
-# Project Architecture
+### Project Architecture
 
 This document provides a detailed breakdown of the system architecture and data flow.
 
-## 1. Architectural Pattern
+#### 1. Architectural Pattern
 
 The platform is built on a modern **ELT (Extract - Load - Transform)** architecture, combined with the **Medallion (Bronze, Silver, Gold)** framework for structuring data layers.
 
 - **Extract & Load:** Data is extracted from the source and loaded into our data platform with minimal transformation.
 - **Transform:** All complex transformations, modeling, and business logic are executed directly within the data warehouse (BigQuery), orchestrated by dbt.
 
-## 2. System Diagram
+#### 2. System Diagram
 
 ![Architecture Diagram](./images/architecture.png)
 
-## 3. Data Flow Explained
+#### 3. Data Flow Explained
 
 1.  **Foundation (Terraform):** `Terraform` provisions all necessary GCP resources (GCS, BigQuery, IAM) from code.
 2.  **Orchestration (Prefect):** `Prefect` acts as the central orchestrator, scheduling and triggering all pipeline tasks.

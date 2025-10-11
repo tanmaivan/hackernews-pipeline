@@ -82,6 +82,8 @@ _For a detailed breakdown of the architecture, components, and data flow, please
 | **Business Intelligence**  | Looker Studio               | Interactive dashboarding and visualization.                 |
 | **Core Language**          | Python                      | Extraction scripts and orchestration logic.                 |
 
+_For more detailed decisions, please see the **[ADR directory](./docs/architectural_decision_adrs.md)**._
+
 ### 5. Key Features
 
 - **Automated ELT Pipeline:** End-to-end orchestration from data ingestion to BI.
