@@ -2,7 +2,7 @@ default_language_version:
   python: python3.9
 
 repos:
-  # === 1. Cac hook co ban ===
+  # 1. Basic checks
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
     hooks:
@@ -13,20 +13,20 @@ repos:
       - id: end-of-file-fixer
       - id: trailing-whitespace
 
-  # === 2. Code formatter Python ===
+  # 2. Code formatter Python
   - repo: https://github.com/psf/black
     rev: 25.9.0
     hooks:
       - id: black
 
-  # === 3. Code linter Python ===
+  # 3. Code linter Python
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.13.2
     hooks:
       - id: ruff-check
         args: [--fix]
 
-  # === 4. Quet tim secret bi lo ===
+  # 4. Secret detection
   - repo: https://github.com/gitleaks/gitleaks
     rev: v8.28.0
     hooks:
