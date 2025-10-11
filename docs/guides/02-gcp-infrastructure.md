@@ -145,5 +145,6 @@ After the `apply` command completes, all your infrastructure is live. You can ve
 
 ---
 
-[< Previous Step: Step 2 - GCP Infrastructure with Terraform](./02-gcp-infrastructure.md)
+[< Previous Step: Step 1 - Plan, Repository, Governance & Project Scaffold](./01-planning-and-scaffold.md)
+
 [> Next Step: Step 3 - Bronze Layer: Raw Data Ingestion](./03-bronze-layer.md)

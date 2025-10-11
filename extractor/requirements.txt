@@ -1,7 +1,0 @@
-requests
-tenacity
-tqdm
-google-cloud-storage
-prefect==3.4.20
-prefect-gcp==0.6.10
-prefect-shell==0.3.1

@@ -88,7 +88,6 @@ _For more detailed decisions, please see the **[ADR directory](./docs/architectu
 
 - **Automated ELT Pipeline:** End-to-end orchestration from data ingestion to BI.
 - **Dimensional Modeling:** Gold layer is modeled as a Star Schema for optimized analytics.
-- **Data Governance:** Automated metadata synchronization between dbt and Google Data Catalog.
 - **Infrastructure as Code:** Fully reproducible environment managed by Terraform.
 
 ### 6. Live Dashboard
