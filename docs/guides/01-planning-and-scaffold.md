@@ -2,27 +2,23 @@
 
 #### Objective
 
-This initial step is the foundation for the entire project. The goal is to establish a robust structure, encompassing project planning, repository initialization, and the configuration of governance tools. This ensures consistency, code quality, and long-term maintainability from the very beginning.
-
----
+This initial step serves as the foundation for the entire project. The primary objective is to establish a robust and consistent structure from the outset. This includes comprehensive project planning, initializing a version-controlled repository, and configuring essential governance tools. Completing this stage ensures that the project remains maintainable, the code quality stays high, and collaboration is streamlined.
 
 ### 1. Project Planning
 
-A detailed plan helps to clearly define the scope, objectives, and required steps for execution.
+A detailed plan is essential for defining the project's scope, objectives, and the sequence of tasks required for completion. For this project, we use Notion to outline and track our progress. This centralizes key project information and provides a clear roadmap for development.
 
-- **Tooling:** I use Notion for drafting and tracking the project plan. A template is available for duplication [here](https://tmv-project-plan.notion.site/project-plan-template).
+A public template of this plan is available for duplication and reuse:
 
-- **Key Sections to Complete:**
-  - **Project Description:** A high-level overview of the project's purpose.
-  - **Project Architecture:** An initial sketch of the system architecture.
-  - **Naming Convention:** A critical guide for consistency across all resources.
-  - **Main Steps & Step Breakdown:** A list of major project phases and their corresponding subtasks for progress tracking.
+- **Project Plan Template:** [https://tmv-project-plan.notion.site/project-plan-template](https://tmv-project-plan.notion.site/project-plan-template)
 
----
+![Example of the Notion Project Plan Template](../images/notion_plan_template.png)
+
+Key sections within this plan include the project description, a preliminary architectural sketch, our standard naming conventions, and a breakdown of main steps into smaller, manageable subtasks.
 
 ### 2. Naming Conventions
 
-Consistent naming is crucial for clarity and automation. The following conventions are used throughout this project:
+To maintain clarity and enable automation, I adhere to a strict set of naming conventions across all project assets. This practice is critical for ensuring that resources are easily identifiable and that scripts can reliably reference infrastructure components.
 
 | Resource                   | Convention                                         | Example                            |
 | :------------------------- | :------------------------------------------------- | :--------------------------------- |
@@ -34,142 +30,113 @@ Consistent naming is crucial for clarity and automation. The following conventio
 | **dbt Models**             | Files in `models/` with layer prefixes             | `models/staging/stg_...`           |
 | **Git Branches**           | `main`, `dev`, `feature/<desc>`, `bugfix/<ticket>` | `feature/add-dbt-snapshots`        |
 | **Commit Messages**        | Conventional Commits                               | `feat:`, `fix:`, `docs:`, `chore:` |
-| **Prefect Credentials**    | `gcp-creds`                                        | `gcp-creds`                        |
-
----
 
 ### 3. Repository & Environment Setup
 
-These are the technical steps to initialize the project on your local machine.
+These are the initial technical steps required to initialize the project on a local machine and prepare it for development.
 
-1.  **Create GitHub Repo & Local Project:**
+- **Create GitHub Repo & Local Project:** First, create a new repository on GitHub. Then, clone this repository to your local machine and navigate into the newly created project directory.
 
-    - Create a new repository on GitHub.
-    - Clone the repository to your local machine and navigate into the project directory.
+- **Create a Virtual Environment:** It is a best practice to use a virtual environment to isolate project-specific dependencies from your global Python installation. This prevents version conflicts and ensures a reproducible environment.
 
-2.  **Create a Virtual Environment:**
-    Always use a virtual environment to isolate project dependencies.
+  ```bash
+  # Create a virtual environment named 'venv'
+  python -m venv venv
 
-    ```bash
-    # Create a virtual environment named 'venv'
-    python -m venv venv
+  # Activate the virtual environment
+  # On macOS/Linux:
+  source venv/bin/activate
+  # On Windows:
+  # venv\Scripts\activate
+  ```
 
-    # Activate the virtual environment
-    # On macOS/Linux:
-    source venv/bin/activate
-    # On Windows:
-    # venv\Scripts\activate
-    ```
-
-3.  **Create `requirements.txt`:**
-    Even if no packages are installed yet, create an empty file to track dependencies.
-    ```bash
-    pip freeze > requirements.txt
-    ```
-
----
+- **Create `requirements.txt`:** Even before installing any packages, it is useful to create an empty `requirements.txt` file. This file will be populated as dependencies are added, serving as a manifest for the project's Python packages.
+  ```bash
+  pip freeze > requirements.txt
+  ```
 
 ### 4. Pre-commit Hooks Setup
 
 #### What is Pre-commit?
 
-`pre-commit` is a framework for managing and maintaining multi-language pre-commit hooks. These hooks run checks on your code **before** you commit, helping to ensure code quality and consistency.
-
-**Benefits:**
-
-- **Enforce Code Quality:** Automatically catch simple issues, syntax errors, and formatting problems.
-- **Maintain Consistency:** Ensure all code in the project adheres to the same formatting style.
-- **Enhance Security:** Automatically scan for secrets (passwords, API keys) that might be accidentally committed.
+Pre-commit is a framework that manages and executes checks, known as hooks, before a commit is created. Integrating this tool into our workflow automates quality control and enforces consistency across the codebase. It helps ensure that all committed code meets our standards for formatting, quality, and security by running checks automatically. This prevents common errors and secrets from being introduced into the version history.
 
 #### Implementation Guide
 
-For full details, refer to the official documentation: [https://pre-commit.com/](https://pre-commit.com/)
+For full details, you can always refer to the official documentation at [https://pre-commit.com/](https://pre-commit.com/).
 
-1.  **Installation:**
+- **Installation:**
 
+  ```bash
+  pip install pre-commit
+  ```
+
+- **Create Configuration File:** Create a file named `.pre-commit-config.yaml` in the project root. This file defines the set of hooks that will be executed. The configuration below includes checks for file hygiene, code formatting with Black, linting with Ruff, and secret detection with Gitleaks.
+
+  ```yaml
+  # .pre-commit-config.yaml
+  default_language_version:
+    python: python3.9
+
+  repos:
+    # 1. Basic File Hygiene
+    - repo: https://github.com/pre-commit/pre-commit-hooks
+      rev: v4.6.0
+      hooks:
+        - id: check-added-large-files
+        - id: check-json
+        - id: check-merge-conflict
+        - id: check-yaml
+        - id: end-of-file-fixer
+        - id: trailing-whitespace
+
+    # 2. Python Code Formatter (Black)
+    - repo: https://github.com/psf/black
+      rev: 24.4.2
+      hooks:
+        - id: black
+
+    # 3. Python Linter (Ruff)
+    - repo: https://github.com/astral-sh/ruff-pre-commit
+      rev: v0.4.4
+      hooks:
+        - id: ruff
+          args: [--fix]
+
+    # 4. Secret Detection (Gitleaks)
+    - repo: https://github.com/gitleaks/gitleaks
+      rev: v8.18.2
+      hooks:
+        - id: gitleaks
+  ```
+
+- **Install the Git Hooks:** This command installs the pre-commit script into your repository's local `.git/hooks` directory. It must be run once per project clone to activate the hooks.
+
+  ```bash
+  pre-commit install
+  ```
+
+- **Initial Run & Updates:**
+  - To run the hooks against all files for the first time or to check the entire repository:
     ```bash
-    pip install pre-commit
+    pre-commit run --all-files
     ```
-
-2.  **Create Configuration File:**
-    Create a file named `.pre-commit-config.yaml` in the project root with the following content. This defines which checks will run.
-
-    ```yaml
-    # .pre-commit-config.yaml
-    default_language_version:
-      python: python3.9
-
-    repos:
-      # 1. Basic File Hygiene
-      - repo: https://github.com/pre-commit/pre-commit-hooks
-        rev: v4.6.0 # Always use the latest stable version
-        hooks:
-          - id: check-added-large-files
-          - id: check-json
-          - id: check-merge-conflict
-          - id: check-yaml
-          - id: end-of-file-fixer
-          - id: trailing-whitespace
-
-      # 2. Python Code Formatter (Black)
-      - repo: https://github.com/psf/black
-        rev: 24.4.2
-        hooks:
-          - id: black
-
-      # 3. Python Linter (Ruff)
-      - repo: https://github.com/astral-sh/ruff-pre-commit
-        rev: v0.4.4
-        hooks:
-          - id: ruff
-            args: [--fix] # Automatically fix what can be fixed
-
-      # 4. Secret Detection (Gitleaks)
-      - repo: https://github.com/gitleaks/gitleaks
-        rev: v8.18.2
-        hooks:
-          - id: gitleaks
-    ```
-
-3.  **Install the Git Hooks:**
-    This command installs the pre-commit script into your repository's `.git/hooks` directory. It needs to be run once per project.
-
+  - To automatically update the hook versions in your configuration file to the latest available:
     ```bash
-    pre-commit install
+    pre-commit autoupdate
     ```
-
-4.  **Initial Run & Updates:**
-    - To run the hooks against all files for the first time:
-      ```bash
-      pre-commit run --all-files
-      ```
-    - To automatically update the hook versions (`rev`) in your config file:
-      ```bash
-      pre-commit autoupdate
-      ```
-
----
 
 ### 5. Git Workflow Setup
 
-1.  **Create a `dev` Branch:**
-    All feature development will branch off from `dev`. The `main` branch is reserved for stable, production-ready releases.
+- **Create a `dev` Branch:** Our branching model designates `main` as the stable, production-ready branch. All development work should be done on feature branches that originate from a `dev` branch.
 
-    ```bash
-    # From the 'main' branch, create a new branch named 'dev' and switch to it
-    git checkout -b dev
-    ```
+  ```bash
+  # From the 'main' branch, create a new branch named 'dev' and switch to it
+  git checkout -b dev
+  ```
 
-2.  **Configure Branch Protection for `main`:**
-    - **Purpose:** Branch protection rules on GitHub safeguard your most important branches. They prevent direct pushes and enforce a review process via Pull Requests.
-    - **Configuration (on GitHub UI):**
-      - Go to your repository -> Settings -> Branches.
-      - Add a "branch protection rule" for `main`.
-      - Enable key options, such as:
-        - Require a pull request before merging.
-        - Require approvals (set to at least 1).
-    - For more details, refer to the official GitHub documentation: [About protected branches](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches)
+- **Configure Branch Protection for `main`:** Branch protection is a set of rules configured in GitHub to safeguard critical branches. It prevents irreversible actions like force pushes and requires that all changes go through a formal review process. To configure it, navigate to your repository's settings on GitHub and add a protection rule for the `main` branch. Key settings to enable include requiring a pull request with at least one approval before merging. For a detailed guide, refer to the official GitHub documentation on [protected branches](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches).
 
 ---
 
-[**> Next Step: Step 2 - GCP Infrastructure with Terraform**](./02-gcp-infrastructure.md)
+[> Next Step: Step 2 - GCP Infrastructure with Terraform](./02-gcp-infrastructure.md)
