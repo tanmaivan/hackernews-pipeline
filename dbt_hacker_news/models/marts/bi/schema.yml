@@ -2,7 +2,7 @@
 version: 2
 
 models:
-  - name: mart_story_analytics
+  - name: vw_story_analytics
     description: "Business intelligence mart for analyzing Hacker News stories."
     columns:
       - name: item_key
