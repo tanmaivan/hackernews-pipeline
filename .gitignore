@@ -50,7 +50,7 @@ extractor/test/
 
 temp.txt
 
-.github/
+.github
 
 # dbt
 dbt_hacker_news/package-lock.yml
