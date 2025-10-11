@@ -43,17 +43,9 @@ output "gold_dataset_id" {
   value       = google_bigquery_dataset.gold_dataset.dataset_id
 }
 
-output "code_bucket_name" {
-  description = "The name of the GCS bucket for storing code and scripts."
-  value       = google_storage_bucket.code_bucket.name
-}
 # --- Outputs for Service Account ---
 
 output "pipeline_worker_service_account_email" {
   description = "The email address of the service account used by the Pipeline Worker."
   value       = google_service_account.pipeline_worker_sa.email
-}
-output "artifact_registry_repo_url" {
-  description = "The URL of the Artifact Registry repository for Docker images."
-  value       = "${google_artifact_registry_repository.hackernews_docker_repo.location}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.hackernews_docker_repo.repository_id}"
 }

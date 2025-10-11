@@ -5,14 +5,8 @@ resource "google_project_service" "required_apis" {
     "bigquery.googleapis.com",
     "iam.googleapis.com",
     "cloudresourcemanager.googleapis.com",
-    "run.googleapis.com",
-    "artifactregistry.googleapis.com",
-    "compute.googleapis.com",
     "logging.googleapis.com",
     "monitoring.googleapis.com",
-    "secretmanager.googleapis.com",
-    # "dataproc.googleapis.com",
-    "datacatalog.googleapis.com"
   ])
   project = var.project_id
   service = each.key
@@ -55,16 +49,6 @@ resource "google_storage_bucket" "gold_bucket" {
   uniform_bucket_level_access = true
 }
 
-resource "google_storage_bucket" "code_bucket" {
-  name = "${local.resource_prefix}-code-bucket"
-  location = var.region
-  uniform_bucket_level_access = true
-  force_destroy = true
-  versioning {
-    enabled = true
-  }
-
-}
 
 # --- BigQuery Datasets ---
 resource "google_bigquery_dataset" "bronze_dataset" {
@@ -87,14 +71,6 @@ resource "google_bigquery_dataset" "gold_dataset" {
   location   = var.region
   friendly_name = "Gold Dataset"
   description = "Aggregated and business-ready data from Silver Dataset"
-}
-
-# --- Artifact Registry for Docker Images ---
-resource "google_artifact_registry_repository" "hackernews_docker_repo" {
-    location = var.region
-    repository_id = "hackernews-docker-repo"
-    description = "Docker repository for Hacker News data pipeline"
-    format = "DOCKER"
 }
 
 # --- Service Account for the Pipeline Worker ---
@@ -122,12 +98,6 @@ resource "google_storage_bucket_iam_member" "gold_writer" {
   member = google_service_account.pipeline_worker_sa.member
 }
 
-resource "google_storage_bucket_iam_member" "code_writer" {
-  bucket = google_storage_bucket.code_bucket.name
-  role   = "roles/storage.objectAdmin"
-  member = google_service_account.pipeline_worker_sa.member
-}
-
 resource "google_project_iam_member" "bigquery_user" {
   project = var.project_id
   role = "roles/bigquery.user"
@@ -139,23 +109,3 @@ resource "google_project_iam_member" "bigquery_data_editor" {
   role = "roles/bigquery.dataEditor"
   member = google_service_account.pipeline_worker_sa.member
 }
-
-resource "google_artifact_registry_repository_iam_member" "pipeline_runner_repo_reader" {
-  location = var.region
-  repository = google_artifact_registry_repository.hackernews_docker_repo.name
-  role = "roles/artifactregistry.reader"
-  member = google_service_account.pipeline_worker_sa.member
-}
-
-resource "google_project_iam_member" "data_catalog_admin" {
-  project = var.project_id
-  role = "roles/datacatalog.admin"
-  member = google_service_account.pipeline_worker_sa.member
-}
-
-# resource "google_project_iam_member" "vm_instance_user" {
-#     project = var.project_id
-#     role = "roles/compute.instanceUser"
-#     member = google_service_account.pipeline_worker_sa.member
-
-# }
