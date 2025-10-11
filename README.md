@@ -152,30 +152,12 @@ Before you begin, ensure you have the following tools installed and configured:
 
 ### 9. How to Reproduce
 
-Once your local environment is set up, follow these steps to deploy the infrastructure and run the end-to-end pipeline.
+This project was built incrementally following a detailed, step-by-step process. Each guide below documents the objectives, key concepts, and implementation details for each major stage of the project.
 
-1.  **Provision GCP Infrastructure:**
-    Navigate to the Terraform directory and apply the configuration. This will create all necessary GCS buckets, BigQuery datasets, and IAM roles.
-
-    ```bash
-    cd infra/terraform
-    terraform init
-    terraform apply
-    ```
-
-2.  **Run the dbt Project:**
-    Navigate to the dbt project directory, install dependencies, and run the models. This builds the Gold layer in BigQuery.
-
-    ```bash
-    cd ../../dbt_hacker_news
-    dbt deps
-    dbt run
-    dbt test
-    ```
-
-3.  **Run the Prefect Pipelines:**
-    The orchestration is managed via a central deployment script. From the project root, run the following command to start the Prefect server, which will begin executing the `extractor` and `bronze-to-silver` flows based on their schedules.
-    ```bash
-    python orchestration/deploy.py
-    ```
-    You can also trigger flows manually for testing via the Prefect UI or by running the individual flow files.
+- [Step 1: Plan, Repository, Governance & Project Scaffold](./docs/guides/01-planning-and-scaffold.md)
+- [Step 2: GCP Infrastructure with Terraform](./docs/guides/02-gcp-infrastructure.md)
+- [Step 3: Bronze Layer - Raw Data Ingestion](./docs/guides/03-bronze-layer.md)
+- [Step 4: Transform 1 - Bronze JSON to Silver Parquet](./docs/guides/04-silver-transformation.md)
+- [Step 5: Transform 2 - Silver Layer Modeling](./docs/guides/05-silver-modeling.md)
+- [Step 6: Gold Layer - dbt Dimensional Modeling](./docs/guides/06-gold-layer.md)
+- [Step 7: BI with Looker Studio](./docs/guides/07-business-intelligence.md)
