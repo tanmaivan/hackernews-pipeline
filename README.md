@@ -169,43 +169,71 @@ The repository follows a modular, layered structure reflecting the Medallion arc
 
 ## 9. Setup & Installation
 
-This section guides you through the process of setting up your local environment to run and develop this project.
+This section guides you through the one-time setup required to prepare your local environment for deploying and running the project.
 
 ### Prerequisites
 
-Before you begin, ensure you have the following tools installed and configured:
+Before you begin, ensure you have the following tools installed and configured on your local machine:
 
-- **Google Cloud SDK (`gcloud`):** Authenticated to your GCP account (`gcloud auth application-default login`).
-- **Terraform CLI:** Version 1.0 or higher.
-- **Python:** Version 3.9 or higher, with `pip` and `venv`.
+- **Google Cloud SDK (`gcloud`):** The command-line tool for interacting with GCP.
+- **Terraform CLI:** Version 1.0 or higher, for managing infrastructure.
+- **Python:** Version 3.9 or higher, along with `pip` and `venv` for managing dependencies.
 - **dbt Core:** The command-line interface for dbt.
 
-### Installation Steps
+### Installation & Configuration Steps
 
-1.  **Clone the Repository:**
+#### 1. Clone the Repository
 
-    ```bash
-    git clone https://github.com/tanmaivan/hn-pipeline.git
-    cd hn-pipeline
-    ```
+```bash
+git clone https://github.com/tanmaivan/hn-pipeline.git
+cd hn-pipeline
+```
 
-2.  **Set up Python Environment:**
-    Create and activate a virtual environment.
+#### 2. Authenticate with Google Cloud
 
-    ```bash
-    python -m venv venv
-    source venv/bin/activate
-    ```
+Log in to `gcloud` and set up Application Default Credentials (ADC). This allows all tools (Terraform, Python scripts, dbt) to securely authenticate with your GCP account.
 
-3.  **Install Dependencies:**
-    Install all required Python packages.
+```bash
+gcloud auth application-default login
+gcloud config set project your-gcp-project-id
+```
 
-    ```bash
-    pip install -r requirements.txt
-    ```
+#### 3. Set up Python Environment
 
-4.  **Configure dbt Profile:**
-    Set up your dbt profile to connect to BigQuery. Your `~/.dbt/profiles.yml` should contain a profile named `dbt_hacker_news` pointing to your GCP project and target dataset. Refer to the [dbt BigQuery Setup Guide](https://docs.getdbt.com/docs/core/connect-data-platform/bigquery-setup) for details.
+Create a dedicated virtual environment for the project and install all required Python packages.
+
+```bash
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
+#### 4. Configure dbt Profile
+
+dbt requires a `profiles.yml` file to connect to BigQuery. While our Prefect flows generate this dynamically, you need a local version for manual `dbt` commands and testing. Create a file at `~/.dbt/profiles.yml` with the following content, replacing the placeholder values:
+
+```yaml
+dbt_hacker_news:
+  target: dev
+  outputs:
+    dev:
+      type: bigquery
+      method: oauth # Uses your gcloud ADC
+      project: your-gcp-project-id
+      dataset: hn_dev_gold # A default dataset
+      location: US # Your GCP region
+      threads: 4
+```
+
+#### 5. Authenticate with Prefect Cloud
+
+Log in to your Prefect Cloud workspace. This will allow you to deploy and monitor your flows.
+
+```bash
+prefect cloud login
+```
+
+Your local environment is now fully configured and ready. To deploy the infrastructure and run the pipelines, please proceed to the **[How to Reproduce](#10-how-to-reproduce)** section.
 
 ## 10. How to Reproduce
 

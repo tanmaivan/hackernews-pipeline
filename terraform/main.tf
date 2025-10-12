@@ -41,12 +41,14 @@ resource "google_storage_bucket" "silver_bucket" {
   name = "${local.resource_prefix}-silver-bucket"
   location = var.region
   uniform_bucket_level_access = true
+  force_destroy = true
 }
 
 resource "google_storage_bucket" "gold_bucket" {
   name = "${local.resource_prefix}-gold-bucket"
   location = var.region
   uniform_bucket_level_access = true
+  force_destroy = true
 }
 
 
@@ -57,6 +59,7 @@ resource "google_bigquery_dataset" "bronze_dataset" {
   friendly_name = "Bronze Dataset"
   description = "Raw data from Hacker News API"
   default_partition_expiration_ms = 30 * 24 * 3600 * 1000 # 30 days
+  delete_contents_on_destroy = true
 }
 
 resource "google_bigquery_dataset" "silver_dataset" {
@@ -64,6 +67,7 @@ resource "google_bigquery_dataset" "silver_dataset" {
   location   = var.region
   friendly_name = "Silver Dataset"
   description = "Cleansed and standardized data from Bronze Dataset"
+  delete_contents_on_destroy = true
 }
 
 resource "google_bigquery_dataset" "gold_dataset" {
@@ -71,6 +75,7 @@ resource "google_bigquery_dataset" "gold_dataset" {
   location   = var.region
   friendly_name = "Gold Dataset"
   description = "Aggregated and business-ready data from Silver Dataset"
+  delete_contents_on_destroy = true
 }
 
 # --- Service Account for the Pipeline Worker ---
