@@ -9,29 +9,29 @@ A comprehensive, end-to-end data platform that extracts, models, and visualizes 
 1. [Overview](#1-overview)
 2. [Problem Statement & Project Goals](#2-problem-statement--project-goals)
 3. [Architecture](#3-architecture)
-4. [Tech Stack](#4-tech-stack)
-5. [Key Features](#5-key-features)
-6. [Live Dashboard](#6-live-dashboard)
-7. [Project Structure](#7-project-structure)
-8. [Setup & Installation](#8-setup--installation)
-9. [How to Reproduce](#9-how-to-reproduce)
-10. [Architectural Decisions (ADRs)](#10-architectural-decisions-adrs)
-11. [Contributing](#11-contributing)
+4. [Data Warehouse Modeling (Star Schema)](#4-data-warehouse-modeling-star-schema)
+5. [Tech Stack](#5-tech-stack)
+6. [Key Features](#6-key-features)
+7. [Live Dashboard](#7-live-dashboard)
+8. [Project Structure](#8-project-structure)
+9. [Setup & Installation](#9-setup--installation)
+10. [How to Reproduce](#10-how-to-reproduce)
+11. [Acknowledgments](#11-acknowledgments)
 12. [License](#12-license)
 
 ---
 
-### 1. Overview
+## 1. Overview
 
-This project provides a scalable and automated solution for analyzing Hacker News data. It ingests raw data from the official API, processes it through a multi-layered data platform (Bronze, Silver, Gold), and presents key business metrics on an interactive BI dashboard. The entire infrastructure is managed as code, and the pipeline is orchestrated for daily refreshes.
+This project provides a scalable and automated solution for analyzing Hacker News data. It ingests raw data from the [official Hacker News API](https://github.com/HackerNews/API), processes it through a multi-layered data platform (Bronze, Silver, Gold), and presents key business metrics on an interactive BI dashboard. The entire infrastructure is managed as code, and the pipeline is orchestrated for daily refreshes.
 
-### 2. Problem Statement & Project Goals
+## 2. Problem Statement & Project Goals
 
-#### The Core Challenge
+### The Core Challenge
 
 Hacker News is a dynamic platform with a high volume of ephemeral data. While its API provides access to raw items, it is not designed for analytical workloads. Any individual or organization aiming to understand trends, identify key influencers, or analyze content velocity faces significant technical hurdles that prevent them from deriving meaningful insights.
 
-#### Key Business Questions
+### Key Business Questions
 
 Due to these challenges, stakeholders cannot answer fundamental business questions. This project aims to build a platform that can answer questions such as:
 
@@ -50,7 +50,7 @@ Due to these challenges, stakeholders cannot answer fundamental business questio
   - What are the peak hours for comments and story submissions?
   - How does engagement change over the lifetime of a story?
 
-#### Expected Outcomes
+### Expected Outcomes
 
 To address these problems and answer the business questions, this project will deliver two primary outcomes:
 
@@ -60,7 +60,7 @@ To address these problems and answer the business questions, this project will d
 2.  **A Self-Service Analytics Dashboard:**
     An interactive Looker Studio dashboard built on top of the Gold Layer. This dashboard will visualize the key business metrics, allowing non-technical stakeholders like Product Managers to explore trends and answer their own questions without needing to write SQL.
 
-### 3. Architecture
+## 3. Architecture
 
 The platform is built on a modern, serverless ELT architecture using a Medallion (Bronze, Silver, Gold) framework. All infrastructure is provisioned via Terraform, and pipelines are orchestrated by Prefect.
 
@@ -68,29 +68,37 @@ _For a detailed breakdown of the architecture, components, and data flow, please
 
 ![Architecture Diagram](./docs/images/architecture.png)
 
-### 4. Tech Stack
+## 4. Data Warehouse Modeling (Star Schema)
 
-| Category                   | Technology                  | Purpose                                                     |
-| :------------------------- | :-------------------------- | :---------------------------------------------------------- |
-| **Cloud Provider**         | Google Cloud Platform (GCP) | Core infrastructure services.                               |
-| **Infrastructure as Code** | Terraform                   | Provisioning GCS, BigQuery, IAM.                            |
-| **Orchestration**          | Prefect                     | Scheduling and monitoring all data pipelines.               |
-| **Data Lake / Staging**    | GCS (Bronze & Silver)       | Storage for raw JSON and optimized Parquet files.           |
-| **Data Warehouse**         | BigQuery (Gold)             | Storage for curated, business-ready data models.            |
-| **Transformation**         | dbt                         | Data modeling, testing, and documentation (Silver -> Gold). |
-| **Data Governance**        | Google Data Catalog         | Centralized metadata discovery and management.              |
-| **Business Intelligence**  | Looker Studio               | Interactive dashboarding and visualization.                 |
-| **Core Language**          | Python                      | Extraction scripts and orchestration logic.                 |
+The analytical core of this platform is built on a **Star Schema**, a dimensional modeling approach optimized for analytics.
+It organizes data into **fact tables** (quantitative measures such as story scores and comment counts) and **dimension tables** (contextual attributes such as authors, dates, and item metadata).
+This structure enables efficient aggregation, fast queries, and intuitive exploration across business metrics.
+
+**[View Interactive Model on dbdiagram.io →](https://dbdiagram.io/d/HackerNews-Star-Schema-68eb3126d2b621e422679c43)**
+![Star Schema Diagram](./docs/images/star_schema.png)
+
+## 5. Tech Stack
+
+| Category                   | Technology                  | Purpose                                                    |
+| :------------------------- | :-------------------------- | :--------------------------------------------------------- |
+| **Cloud Provider**         | Google Cloud Platform (GCP) | Core infrastructure services.                              |
+| **Infrastructure as Code** | Terraform                   | Provisioning GCS, BigQuery, IAM.                           |
+| **Orchestration**          | Prefect                     | Scheduling and monitoring all data pipelines.              |
+| **Data Lake / Staging**    | GCS (Bronze & Silver)       | Storage for raw JSON and optimized Parquet files.          |
+| **Data Warehouse**         | BigQuery (Gold)             | Storage for curated, business-ready data models.           |
+| **Transformation**         | dbt                         | Data modeling, testing, and documentation (Silver → Gold). |
+| **Business Intelligence**  | Looker Studio               | Interactive dashboarding and visualization.                |
+| **Core Language**          | Python                      | Extraction scripts and orchestration logic.                |
 
 _For more detailed decisions, please see the **[ADR directory](./docs/architectural_decision_adrs.md)**._
 
-### 5. Key Features
+## 6. Key Features
 
 - **Automated ELT Pipeline:** End-to-end orchestration from data ingestion to BI.
 - **Dimensional Modeling:** Gold layer is modeled as a Star Schema for optimized analytics.
 - **Infrastructure as Code:** Fully reproducible environment managed by Terraform.
 
-### 6. Live Dashboard
+## 7. Live Dashboard
 
 The final output of this project is an interactive Looker Studio dashboard that visualizes key trends and metrics.
 
@@ -102,17 +110,70 @@ _See the **[Dashboard Documentation](./docs/dashboard.md)** for a guide on how t
 
 _Please be aware that historical data collection for this project started on August 23, 2025. As a result, lifetime metrics such as "Author Lifetime Days" are calculated based on activity observed since this date and may not represent the full history of an author on Hacker News._
 
-### 7. Project Structure
+## 8. Project Structure
 
-The repository is organized into distinct directories, each with a specific responsibility.
+The repository follows a modular, layered structure reflecting the Medallion architecture (Bronze → Silver → Gold). Each directory encapsulates a single responsibility - from data ingestion to transformation, orchestration, and documentation.
 
-_For a detailed explanation of each directory, please see the **[Repository Structure Guide](./docs/repository_structure.md)**._
+```
+.
+├── dbt_hacker_news/           # dbt project — all SQL models, tests, and configs for Silver → Gold
+│   ├── dbt_project.yml        # Core dbt project configuration
+│   ├── models/
+│   │   ├── sources.yml        # Defines external data sources (Silver)
+│   │   ├── staging/           # Cleans and standardizes raw data (stg_hn_items)
+│   │   └── marts/             # Organized into subfolders for star schema modeling
+│   │       ├── dimensions/    # Dimension tables (users, items, dates)
+│   │       ├── facts/         # Fact tables (stories)
+│   │       └── bi/            # BI-ready denormalized views
+|   |
+│   ├── packages.yml           # External dbt package dependencies (e.g., dbt-utils)
+│   └── README.md
+│
+├── docs/                      # Project documentation and architectural references
+│   ├── guides/                # Step-by-step implementation guides (01–07)
+│   ├── images/                # Architecture, diagrams, screenshots
+│   ├── architecture.md        # High-level architectural overview
+│   ├── dashboard.md           # BI dashboard explanation
+│   ├── BUSINESS_REQUIREMENTS.md
+│   ├── architectural_decision_adrs.md  # Design rationale and trade-offs
+│   └── ...
+│
+├── extractor/                 # Python module for fetching and preprocessing Hacker News data
+│   ├── src/                   # Main logic (API client, GCS utilities, processing)
+│   └── test/                  # Unit tests for extraction logic
+│
+├── orchestration/             # Prefect flows managing ELT orchestration and deployments
+│   ├── extractor_flow.py      # Extract raw data → Bronze
+│   ├── bronze_to_silver_flow.py
+│   ├── silver_to_gold_flow.py
+│   └── create_variables.py
+│
+├── transformation/            # Python-based transformation scripts (Bronze → Silver)
+│   ├── create_external_table_silver.py
+│   └── run_bronze_to_silver.py
+│
+├── terraform/                 # Infrastructure as Code for provisioning GCP resources
+│   ├── main.tf
+│   ├── variables.tf
+│   ├── outputs.tf
+│   ├── providers.tf
+│   └── versions.tf
+│
+├── scripts/                   # Utility shell scripts for environment setup and automation
+│   └── generate_env.sh
+│
+├── prefect.yaml               # Prefect deployment and flow configuration
+├── requirements.txt           # Python dependencies
+├── .pre-commit-config.yaml    # Linting and formatting hooks
+├── .gitignore                 # Git ignore rules
+└── README.md                  # Primary documentation entry point
+```
 
-### 8. Setup & Installation
+## 9. Setup & Installation
 
 This section guides you through the process of setting up your local environment to run and develop this project.
 
-#### Prerequisites
+### Prerequisites
 
 Before you begin, ensure you have the following tools installed and configured:
 
@@ -120,9 +181,8 @@ Before you begin, ensure you have the following tools installed and configured:
 - **Terraform CLI:** Version 1.0 or higher.
 - **Python:** Version 3.9 or higher, with `pip` and `venv`.
 - **dbt Core:** The command-line interface for dbt.
-- **Docker:** (Optional, for running Marquez if you choose to implement lineage).
 
-#### Installation Steps
+### Installation Steps
 
 1.  **Clone the Repository:**
 
@@ -149,7 +209,7 @@ Before you begin, ensure you have the following tools installed and configured:
 4.  **Configure dbt Profile:**
     Set up your dbt profile to connect to BigQuery. Your `~/.dbt/profiles.yml` should contain a profile named `dbt_hacker_news` pointing to your GCP project and target dataset. Refer to the [dbt BigQuery Setup Guide](https://docs.getdbt.com/docs/core/connect-data-platform/bigquery-setup) for details.
 
-### 9. How to Reproduce
+## 10. How to Reproduce
 
 This project was built incrementally following a detailed, step-by-step process. Each guide below documents the objectives, key concepts, and implementation details for each major stage of the project.
 
@@ -160,3 +220,22 @@ This project was built incrementally following a detailed, step-by-step process.
 - [Step 5: Transform 2 - Silver Layer Modeling](./docs/guides/05-silver-modeling.md)
 - [Step 6: Gold Layer - dbt Dimensional Modeling](./docs/guides/06-gold-layer.md)
 - [Step 7: BI with Looker Studio](./docs/guides/07-business-intelligence.md)
+- [Step 8: Dashboard Export & Resource Cleanup](./docs/guides/08-dashboard-cleanup.md)
+
+## 11. Acknowledgments
+
+This project draws inspiration and technical foundations from multiple open-source and cloud-native ecosystems.
+Special acknowledgment to:
+
+- **Hacker News API** for providing open access to community data.
+- **dbt Labs** for pioneering the modern transformation layer.
+- **Prefect** for enabling maintainable, observable data orchestration.
+- **Terraform** for codifying reproducible infrastructure.
+- **Google Cloud Platform** for scalable data services including GCS and BigQuery.
+
+These tools and communities collectively made this end-to-end data platform possible.
+
+## 12. License
+
+This project is licensed under the **MIT License**.
+See the [LICENSE](./LICENSE) file for full terms.
