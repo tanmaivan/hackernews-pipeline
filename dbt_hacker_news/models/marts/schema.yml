@@ -1,0 +1,32 @@
+version: 2
+
+models:
+  - name: mart_daily_story_metrics
+    description: "Aggregated daily metrics summarizing Hacker News story activity. Provides insights into content volume and engagement levels per day."
+    columns:
+      - name: story_date
+        description: "Date when stories were created."
+        data_type: date
+        tests:
+          - not_null
+      - name: stories_per_day
+        description: "Total number of stories posted per day."
+        data_type: integer
+      - name: avg_comments_per_story
+        description: "Average number of comments per story for that day."
+        data_type: float
+      - name: median_story_score
+        description: "Median score (points) of stories for that day, calculated using approximate quantiles."
+        data_type: float
+
+  - name: mart_daily_active_authors
+    description: "Aggregated daily metrics tracking the number of unique active authors posting stories on Hacker News."
+    columns:
+      - name: story_date
+        description: "Date when stories were created."
+        data_type: date
+        tests:
+          - not_null
+      - name: active_authors_per_day
+        description: "Count of distinct authors who posted stories on that date."
+        data_type: integer

@@ -110,11 +110,21 @@ The main idea of the `orchestration/extractor_flow.py` is to:
 - For each chunk, it calls the `fetch`, `process`, and `upload` tasks in sequence.
 - Finally, it updates the checkpoint with the ID of the last item in the processed chunk.
 
+To test the flow locally before deploying it to Prefect Cloud, you can run it directly using the following command:
+
+```bash
+python -m orchestration.extractor_flow
+```
+
+This executes the flow in your local environment, allowing you to verify that the extraction, processing, and upload steps work as expected before scheduling it in the cloud.
+
 ### 5. Deploying the Flow
 
 To run this flow on a schedule using Prefect Cloud, we need to create a deployment. A deployment packages your flow, specifies how it should be executed, and defines its schedule.
 
-**Create a Work Pool:** A work pool is a logical grouping for your infrastructure that will execute the flow runs. If you don't have one, create it in the Prefect Cloud UI:
+#### Create a Work Pool:
+
+A work pool is a logical grouping for your infrastructure that will execute the flow runs. If you don't have one, create it in the Prefect Cloud UI:
 
 - Go to **Work Pools**.
 - Click `+` to create a new pool.
@@ -124,34 +134,34 @@ To run this flow on a schedule using Prefect Cloud, we need to create a deployme
 
 - **Create `prefect.yaml`:** This file defines how to build and deploy your flows. Create a file named `prefect.yaml` in your project root.
 
-  ```yaml
-  # prefect.yaml
-  name: hn-pipeline
-  prefect-version: 3.4.2 # Or your current Prefect version
+```yaml
+# prefect.yaml
+name: hn-pipeline
+prefect-version: 3.4.2 # Or your current Prefect version
 
-  build: null
-  push: null
-  pull:
-    - prefect.deployments.steps.git_clone:
-        repository: https://github.com/your-username/your-repo-name.git
-        branch: main # Or your current branch
-    - prefect.deployments.steps.pip_install_requirements:
-        requirements_file: requirements.txt
+build: null
+push: null
+pull:
+  - prefect.deployments.steps.git_clone:
+      repository: https://github.com/your-username/your-repo-name.git
+      branch: main # Or your current branch
+  - prefect.deployments.steps.pip_install_requirements:
+      requirements_file: requirements.txt
 
-  deployments:
-    - name: hn-extractor
-      entrypoint: orchestration/extractor_flow.py:extractor_flow
-      work_pool:
-        name: managed-python-pool # Must match the name of your work pool
-      schedule:
-        - cron: "0 * * * *" # Run at the beginning of every hour
-          timezone: "UTC"
-  ```
+deployments:
+  - name: hn-extractor
+    entrypoint: orchestration/extractor_flow.py:extractor_flow
+    work_pool:
+      name: managed-python-pool # Must match the name of your work pool
+    schedule:
+      - cron: "0 * * * *" # Run at the beginning of every hour
+        timezone: "UTC"
+```
 
-  This configuration tells Prefect to:
+This configuration tells Prefect to:
 
-  - **pull:** Clone your Git repository and install dependencies from `requirements.txt`.
-  - **deploy:** Create a deployment named `hn-extractor` from the `extractor_flow` function, assign it to your work pool, and schedule it to run hourly.
+- **pull:** Clone your Git repository and install dependencies from `requirements.txt`.
+- **deploy:** Create a deployment named `hn-extractor` from the `extractor_flow` function, assign it to your work pool, and schedule it to run hourly.
 
 - **Apply the Deployment:** From your terminal, run the following command to create the deployment on Prefect Cloud:
   ```bash
@@ -169,6 +179,6 @@ Contents of the Bronze layer bucket in Google Cloud Storage, displaying the uplo
 
 ---
 
-[< Previous Step: Step 2 - GCP Infrastructure with Terraform](./02-gcp-infrastructure.md)
+[← Previous: Step 2 - GCP Infrastructure with Terraform](./02-gcp-infrastructure.md)
 
-[> Next Step: Step 4 - Transform 1: Bronze JSON to Silver Parquet](./04-silver-transformation.md)
+[Next: Step 4 - Transform 1: Bronze JSON to Silver Parquet →](./04-silver-transformation.md)
