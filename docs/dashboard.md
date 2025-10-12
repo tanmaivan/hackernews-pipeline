@@ -2,8 +2,6 @@
 
 This document explains the key components and charts of the main BI dashboard.
 
-**[View Live Dashboard →](https://lookerstudio.google.com/s/i3d2np2Q1SU)**
-
 [![Dashboard Screenshot](images/dashboard_overview.png)](https://lookerstudio.google.com/s/i3d2np2Q1SU)
 
 _Please be aware that historical data collection for this project started on August 23, 2025. As a result, lifetime metrics such as "Author Lifetime Days" are calculated based on activity observed since this date and may not represent the full history of an author on Hacker News._
