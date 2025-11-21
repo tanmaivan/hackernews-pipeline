@@ -114,7 +114,7 @@ The repository follows a modular, layered structure reflecting the Medallion arc
 
 ```
 .
-├── dbt_hacker_news/           # dbt project — all SQL models, tests, and configs for Silver → Gold
+├── dbt_hacker_news/           # dbt project - all SQL models, tests, and configs for Silver → Gold
 │   ├── dbt_project.yml        # Core dbt project configuration
 │   ├── models/
 │   │   ├── sources.yml        # Defines external data sources (Silver)
@@ -128,7 +128,7 @@ The repository follows a modular, layered structure reflecting the Medallion arc
 │   └── README.md
 │
 ├── docs/                      # Project documentation and architectural references
-│   ├── guides/                # Step-by-step implementation guides (01–07)
+│   ├── guides/                # Step-by-step implementation guides (01–08)
 │   ├── images/                # Architecture, diagrams, screenshots
 │   ├── architecture.md        # High-level architectural overview
 │   ├── dashboard.md           # BI dashboard explanation
@@ -252,7 +252,7 @@ This project was built incrementally following a detailed, step-by-step process.
 
 This project draws inspiration and technical foundations from multiple open-source and cloud-native ecosystems.
 Special acknowledgment to:
-
+- **DataTalksClub** for establishing the foundational frameworks used in the Data Engineering Zoomcamp.
 - **Hacker News API** for providing open access to community data.
 - **dbt Labs** for pioneering the modern transformation layer.
 - **Prefect** for enabling maintainable, observable data orchestration.
