@@ -58,6 +58,6 @@ The final dashboard provides a single pane of glass for stakeholders to monitor 
 
 ---
 
-[← Previous: Step: Step 6 - Gold Layer: dbt Dimensional Modeling](./06-gold-layer.md)
+[← Previous: Step 6 - Gold Layer: dbt Dimensional Modeling](./06-gold-layer.md)
 
 [Next: Step 8 - Dashboard Export & Resource Cleanup →](./08-dashboard-cleanup.md)
